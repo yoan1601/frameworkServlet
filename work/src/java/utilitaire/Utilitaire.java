@@ -15,7 +15,9 @@ public class Utilitaire {
         String rep = request.getPathInfo();
         if(rep == null){
             rep = "/";
+            return rep;
         }
-        return rep;
+        // raha asorina le / eo am voalohany
+        return rep.substring(1);
     }
 }

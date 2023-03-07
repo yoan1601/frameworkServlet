@@ -37,6 +37,7 @@ public class FrontServlet extends HttpServlet {
             /* TODO output your page here. You may use following sample code. */
             String urlPattern = Utilitaire.getURLPattern(request);
             out.println(urlPattern);
+            
         }
     }
 
