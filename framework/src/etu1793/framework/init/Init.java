@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import utilitaire.Utilitaire;
+import etu1793.framework.utilitaire.Utilitaire;
 
 public class Init {
 
@@ -31,6 +31,7 @@ public class Init {
                     if(isAnnotedMethod(m, "UrlAnnotation") == true) {
                         ua = (UrlAnnotation) m.getAnnotation(UrlAnnotation.class);
                         url = ua.urlPattern();
+                        mapping = new Mapping();
                         mapping.setClassName(m.getDeclaringClass().getName());
                         mapping.setMethod(m.getName());
                         rep.put(url, mapping);

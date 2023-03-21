@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import utilitaire.Utilitaire;
+import etu1793.framework.utilitaire.Utilitaire;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
 
@@ -26,7 +26,9 @@ public class FrontServlet extends HttpServlet {
             ServletContext servletContext = getServletContext();
             // Obtenir le nom de l'application à partir du ServletContext
             String appName = servletContext.getContextPath();
-            String repertoire = workingDir + "/../webapps"+appName+"/WEB-INF/classes";
+            //String repertoire = workingDir + "/../webapps"+appName+"/WEB-INF/classes";
+            //String repertoire = workingDir + "/build/classes";
+            String repertoire = getServletContext().getRealPath("/WEB-INF/classes/");
             mappingUrls = Init.getUrlMethods(repertoire);   
         } catch (Exception e) {
             System.out.print(e.getLocalizedMessage());
@@ -38,10 +40,18 @@ public class FrontServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
 
+            String workingDir = System.getProperty("user.dir");
             ServletContext servletContext = getServletContext();
             // Obtenir le nom de l'application à partir du ServletContext
             String appName = servletContext.getContextPath();
+            //String repertoire = workingDir + "/../webapps"+appName+"/WEB-INF/classes";
+            //String repertoire = workingDir + "/build/classes";
+            String repertoire = getServletContext().getRealPath("/WEB-INF/classes/");
             out.print("app name "+appName);
+            out.print("</br>");
+            out.print("user dir "+workingDir);
+            out.print("</br>");
+            out.print("rep de recherche "+repertoire);
             out.print("</br>");
             for(Map.Entry<String, Mapping> entry : mappingUrls.entrySet()) {
                 String key = entry.getKey();
