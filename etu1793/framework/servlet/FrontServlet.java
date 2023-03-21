@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import utilitaire.Utilitaire;
+import etu1793.framework.utilitaire.Utilitaire;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
 
