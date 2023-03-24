@@ -10,7 +10,6 @@ import java.util.HashMap;
 import etu1793.framework.utilitaire.Utilitaire;
 
 public class Init {
-
     public static HashMap<String, Mapping> getUrlMethods(String repertoire) throws Exception {
         HashMap<String, Mapping> rep = new HashMap<String, Mapping>();
         String url = "";

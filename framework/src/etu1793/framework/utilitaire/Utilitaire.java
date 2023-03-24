@@ -1,16 +1,31 @@
 
 package etu1793.framework.utilitaire;
 
+import etu1793.framework.Mapping;
+import etu1793.framework.modelView.ModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 
 
 
 public class Utilitaire {
+    
+    public static ModelView getMethodeMV(Mapping mapping) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        String className = mapping.getClassName();
+        String methodName = mapping.getMethod();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        Class clazz = loader.loadClass(className);
+        Method methode = clazz.getMethod(methodName);
+        Object o = clazz.getConstructor().newInstance();
+        ModelView mv = (ModelView) methode.invoke(o);
+        return mv;
+    }
 
     public static String getURLPattern(HttpServletRequest request) throws Exception {
         String rep = request.getPathInfo();
