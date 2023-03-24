@@ -1,0 +1,1 @@
+jar -cvf /home/yoan/apache-tomcat-10.0.27/webapps/testFramework.war * 

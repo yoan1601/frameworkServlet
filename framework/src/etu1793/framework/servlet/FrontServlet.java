@@ -2,6 +2,7 @@ package etu1793.framework.servlet;
 
 import etu1793.framework.Mapping;
 import etu1793.framework.init.Init;
+import etu1793.framework.modelView.ModelView;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import etu1793.framework.utilitaire.Utilitaire;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
 
@@ -67,38 +69,22 @@ public class FrontServlet extends HttpServlet {
             }
             
             String urlPattern = Utilitaire.getURLPattern(request);
-            String URL = urlPattern;
-            out.println("URL "+URL);
-            out.println("</br>");
-            out.println("classe selected "+mappingUrls.get(urlPattern).getClassName());
-            out.println("</br>");
-            out.println("Method selected"+mappingUrls.get(urlPattern).getMethod());
-            out.println("</br>");
-            /*String workingDir = System.getProperty("user.dir");
-            String repertoire = workingDir + "/../webapps"+request.getContextPath()+"/WEB-INF/classes";
-            Method m = Init.getMethodAnnotedByUrlPattern(URL, repertoire);
-            
-            out.println("workingDir "+repertoire);
-            out.println("</br>");
             out.println("URL "+urlPattern);
             out.println("</br>");
-
-            if(m == null) {
-                out.print("Aucune methode trouvée");
+            if(mappingUrls.containsKey(urlPattern) == true) {
+               out.println("classe selected "+mappingUrls.get(urlPattern).getClassName());
+               out.println("</br>");
+               out.println("Method selected"+mappingUrls.get(urlPattern).getMethod());
+               out.println("</br>");
+               ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern));
+               out.println("modelView.getView -> "+mv.getView());
+               out.println("</br> OK");
+               RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
+               dispat.forward(request, response); 
             }
-
-            Mapping mappings = new Mapping();
-            mappings.setClassName(m.getDeclaringClass().getName());
-            mappings.setMethod(m.getName());
-            mappingUrls.put(urlPattern, mappings);
-
-            out.println("</br>");
-            out.println("classe "+mappingUrls.get(urlPattern).getClassName());
-            out.println("</br>");
-            out.println("Method "+mappingUrls.get(urlPattern).getMethod());
-            out.println("</br>");*/
-
-
+            else {
+                out.print("methode referencée par "+urlPattern+" introuvable");
+            }
         }
     }
 
