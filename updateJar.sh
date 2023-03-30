@@ -1,1 +1,0 @@
-cp -r framework/dist/framework.jar testFramework/build/web/WEB-INF/lib/framework.jar
