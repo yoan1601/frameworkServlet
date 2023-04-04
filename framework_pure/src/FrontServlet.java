@@ -80,6 +80,7 @@ public class FrontServlet extends HttpServlet {
                ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern));
                //out.println("modelView.getView -> "+mv.getView());
                //out.println("</br> OK");
+               out.print("ok");
                if(mv.getData() instanceof HashMap) {
                 for(Map.Entry<String, Object> entry : mv.getData().entrySet()) {
                     String key = entry.getKey();
