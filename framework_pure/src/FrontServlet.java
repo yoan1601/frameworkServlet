@@ -49,7 +49,7 @@ public class FrontServlet extends HttpServlet {
             //String repertoire = workingDir + "/../webapps"+appName+"/WEB-INF/classes";
             //String repertoire = workingDir + "/build/classes";
             String repertoire = getServletContext().getRealPath("/WEB-INF/classes/");
-            out.print("app name "+appName);
+            /*out.print("app name "+appName);
             out.print("</br>");
             out.print("user dir "+workingDir);
             out.print("</br>");
@@ -66,20 +66,27 @@ public class FrontServlet extends HttpServlet {
                 out.print("</br>");
                 out.print("=======");
                 out.print("</br>");
-            }
+            }*/
             
-            out.println("request.getPathInfo() "+request.getPathInfo());
+            //out.println("request.getPathInfo() "+request.getPathInfo());
             String urlPattern = Utilitaire.getURLPattern(request);
-            out.println("URL "+urlPattern);
-            out.println("</br>");
+            //out.println("URL "+urlPattern);
+            //out.println("</br>");
             if(mappingUrls.containsKey(urlPattern) == true) {
-               out.println("classe selected "+mappingUrls.get(urlPattern).getClassName());
-               out.println("</br>");
-               out.println("Method selected"+mappingUrls.get(urlPattern).getMethod());
-               out.println("</br>");
+               //out.println("classe selected "+mappingUrls.get(urlPattern).getClassName());
+               //out.println("</br>");
+               //out.println("Method selected"+mappingUrls.get(urlPattern).getMethod());
+               //out.println("</br>");
                ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern));
-               out.println("modelView.getView -> "+mv.getView());
-               out.println("</br> OK");
+               //out.println("modelView.getView -> "+mv.getView());
+               //out.println("</br> OK");
+               if(mv.getData() instanceof HashMap) {
+                for(Map.Entry<String, Object> entry : mv.getData().entrySet()) {
+                    String key = entry.getKey();
+                    Object o = entry.getValue();
+                    request.setAttribute(key, o);
+                }
+               }
                RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
                dispat.forward(request, response); 
             }
