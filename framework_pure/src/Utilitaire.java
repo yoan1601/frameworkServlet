@@ -7,24 +7,76 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
 
 
 
 public class Utilitaire {
-    
-    public static ModelView getMethodeMV(Mapping mapping) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+    public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request) throws Exception {
         String className = mapping.getClassName();
         String methodName = mapping.getMethod();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         Class clazz = loader.loadClass(className);
         Method methode = clazz.getMethod(methodName);
         Object o = clazz.getConstructor().newInstance();
+
+        //set des attributs correspondants
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        for (String parameterName : parameterMap.keySet()) {
+            //verifier ra nom ana attribut ao amle classe ilay parametre
+            if(attributeExists(clazz, parameterName) == true) {
+                Field field = clazz.getDeclaredField(parameterName);
+                field.setAccessible(true);
+                Class typeAttribut = field.getType();
+                String[] parameterValues = parameterMap.get(parameterName);
+                String valStr = parameterValues[0];
+                if (typeAttribut == int.class) {
+                    int intValue = Integer.parseInt(valStr);
+                    field.setInt(o, intValue);
+                }
+                else if (typeAttribut == Integer.class) {
+                    Integer intValue = Integer.parseInt(valStr);
+                    field.set(o, intValue);
+                }
+                else if (typeAttribut == double.class) {
+                    double doubleValue = Double.parseDouble(valStr);
+                    field.setDouble(o, doubleValue);
+                }
+                else if (typeAttribut == Double.class) {
+                    Double doubleValue = Double.parseDouble(valStr);
+                    field.set(o, doubleValue);
+                }
+                else if (typeAttribut == boolean.class) {
+                    boolean booleanValue = Boolean.parseBoolean(valStr);
+                    field.setBoolean(o, booleanValue);
+                } else if (typeAttribut == String.class) {
+                    field.set(o, valStr);
+                }
+                else if (typeAttribut == Date.class) {
+                    String dateFormat = "yyyy-MM-dd";
+                    SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+                    Date date = formatter.parse(valStr);
+                    field.set(o, date);
+                }
+            }
+        }
         ModelView mv = (ModelView) methode.invoke(o);
         return mv;
+    }
+
+    public static boolean attributeExists(Class clazz, String attributeName) {
+        try {
+          Field field = clazz.getDeclaredField(attributeName);
+          return true;
+        } catch (NoSuchFieldException e) {
+          return false;
+        }
     }
 
     public static String getURLPattern(HttpServletRequest request) throws Exception {

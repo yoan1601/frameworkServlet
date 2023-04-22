@@ -1,16 +1,26 @@
 package objets;
 
+import etu1793.framework.annotationDao.UrlAnnotation;
+import etu1793.framework.modelView.ModelView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import etu1793.framework.annotationDao.UrlAnnotation;
-import etu1793.framework.modelView.ModelView;
 
 public class Employe {
 
-    String nom;
+    private String nom;
+    private Integer age;
 
-    public Employe() {}
+	public Employe() {}
+
+    public Integer getAge() {
+		return this.age;
+	}
+
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+
     public Employe(String n) {
         setNom(n);
     }
@@ -21,6 +31,17 @@ public class Employe {
 
     public String getNom() {
         return nom;
+    }
+
+    @UrlAnnotation(urlPattern = "emp_save.do")
+    public ModelView save() {
+        ModelView mv = new ModelView();
+        mv.setView("emp_result_save.jsp");
+        mv.setData(new HashMap<String, Object>());
+        System.out.println("nom "+getNom());
+        System.out.println("age "+getAge());
+        mv.addItem("employe", this);
+        return mv;
     }
 
     @UrlAnnotation(urlPattern = "findAll.do")

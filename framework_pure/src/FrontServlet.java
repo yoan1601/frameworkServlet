@@ -3,18 +3,21 @@ package etu1793.framework.servlet;
 import etu1793.framework.Mapping;
 import etu1793.framework.init.Init;
 import etu1793.framework.modelView.ModelView;
-import etu1793.framework.utilitaire.Utilitaire;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import etu1793.framework.utilitaire.Utilitaire;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.ServletContext;
+
 
 public class FrontServlet extends HttpServlet {
 
