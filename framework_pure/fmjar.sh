@@ -1,5 +1,5 @@
 #compilation du framework
-javac -cp lib/servlet-api.jar  -d classes src/*.java
+javac -cp lib/servlet-api.jar -parameters -d classes src/*.java
 #construit le .jar
 cd classes
 bash constrJar.sh

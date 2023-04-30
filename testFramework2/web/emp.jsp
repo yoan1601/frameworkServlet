@@ -19,7 +19,7 @@
                 for(int i = 0; i < le.size(); i++) {
                     Employe e = le.get(i);
             %>
-                <p><%= e.getNom() %></p>
+                <p><a href="emp_find_by_id.do?id=<%= i %>"><%= e.getNom() %></a></p>
             <%    }
             %>
         </ul>
