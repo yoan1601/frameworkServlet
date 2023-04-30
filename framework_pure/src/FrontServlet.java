@@ -3,18 +3,18 @@ package etu1793.framework.servlet;
 import etu1793.framework.Mapping;
 import etu1793.framework.init.Init;
 import etu1793.framework.modelView.ModelView;
+import etu1793.framework.utilitaire.Utilitaire;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import etu1793.framework.utilitaire.Utilitaire;
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
 
@@ -50,24 +50,6 @@ public class FrontServlet extends HttpServlet {
             //String repertoire = workingDir + "/../webapps"+appName+"/WEB-INF/classes";
             //String repertoire = workingDir + "/build/classes";
             String repertoire = getServletContext().getRealPath("/WEB-INF/classes/");
-            /*out.print("app name "+appName);
-            out.print("</br>");
-            out.print("user dir "+workingDir);
-            out.print("</br>");
-            out.print("rep de recherche "+repertoire);
-            out.print("</br>");
-            for(Map.Entry<String, Mapping> entry : mappingUrls.entrySet()) {
-                String key = entry.getKey();
-                Mapping m = entry.getValue();
-                out.print("URL "+ key);
-                out.print("</br>");
-                out.print("Classe "+ m.getClassName());
-                out.print("</br>");
-                out.print("Methode "+ m.getMethod());
-                out.print("</br>");
-                out.print("=======");
-                out.print("</br>");
-            }*/
 
             //out.println("request.getPathInfo() "+request.getPathInfo());
             String urlPattern = Utilitaire.getURLPattern(request);

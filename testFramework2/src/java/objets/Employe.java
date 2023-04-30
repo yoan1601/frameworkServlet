@@ -21,6 +21,11 @@ public class Employe {
 		this.age = age;
 	}
 
+    public Employe(String n, Integer a) {
+        setNom(n);
+        setAge(a);
+    }
+
     public Employe(String n) {
         setNom(n);
     }
@@ -31,6 +36,23 @@ public class Employe {
 
     public String getNom() {
         return nom;
+    }
+
+    @UrlAnnotation(urlPattern = "emp_find_by_id.do")
+    public ModelView findById(Integer id) {
+        ModelView mv = new ModelView();
+        mv.setView("emp_fiche.jsp");
+        mv.setData(new HashMap<String, Object>());
+        ArrayList <Employe> l = new ArrayList<>();
+        Employe e = new Employe("jean", 18);
+        l.add(e);
+        e = new Employe("jacque", 32);
+        l.add(e);
+        e = new Employe("patrik", 25);
+        l.add(e);
+        mv.addItem("employe", l.get(id));
+        mv.addItem("id", id);
+        return mv;
     }
 
     @UrlAnnotation(urlPattern = "emp_save.do")
@@ -44,7 +66,7 @@ public class Employe {
         return mv;
     }
 
-    @UrlAnnotation(urlPattern = "findAll.do")
+    @UrlAnnotation(urlPattern = "emp_findAll.do")
     public ModelView findAll() {
         ModelView mv = new ModelView();
         mv.setView("emp.jsp");
