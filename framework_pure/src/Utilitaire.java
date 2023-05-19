@@ -5,6 +5,7 @@ import etu1793.framework.Mapping;
 import etu1793.framework.modelView.ModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -14,10 +15,16 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
-
-
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 public class Utilitaire {
+
+    @SuppressWarnings("rawtypes")
 
     public static Object[] getListeObjetsParametres(Method m, HttpServletRequest request) throws Exception {
         Parameter [] lp = m.getParameters();
@@ -27,39 +34,42 @@ public class Utilitaire {
         for (int i = 0; i < lp.length; i++) {
             System.out.println("isNamePresent "+lp[i].isNamePresent());
             System.out.println("nom param "+ lp[i].getName());
-            for (String nomRequete : parameterMap.keySet()) {
-                System.out.println("nom requete "+ nomRequete);
-                if(nomRequete.equals(lp[i].getName())) {
-                    String[] parameterValues = parameterMap.get(nomRequete);
-                    String valStr = parameterValues[0];
-                    Class typeParametre = lp[i].getType();
-                    if (typeParametre == int.class) {
-                        int intValue = Integer.parseInt(valStr);
-                        rep[i] = intValue;
+            Annotation[] annotes=lp[i].getAnnotations();
+            for (Annotation annotation : annotes) {
+                if(annotation.annotationType().getSimpleName().equals("ParamAnnotation")) {
+                    String valStr = request.getParameter(annotation.annotationType().getMethod("description").invoke(annotation).toString());
+                    if(valStr != null) {
+                        Class typeParametre = lp[i].getType();
+                        if (typeParametre == int.class) {
+                            int intValue = Integer.parseInt(valStr);
+                            rep[i] = intValue;
+                        }
+                        else if (typeParametre == Integer.class) {
+                            Integer intValue = Integer.parseInt(valStr);
+                            rep[i] = intValue;
+                        }
+                        else if (typeParametre == double.class) {
+                            double doubleValue = Double.parseDouble(valStr);
+                            rep[i] = doubleValue;
+                        }
+                        else if (typeParametre == Double.class) {
+                            Double doubleValue = Double.parseDouble(valStr);
+                            rep[i] = doubleValue;
+                        }
+                        else if (typeParametre == boolean.class) {
+                            boolean booleanValue = Boolean.parseBoolean(valStr);
+                            rep[i] = booleanValue;
+                        } else if (typeParametre == String.class) {
+                            rep[i] = valStr;
+                        }
+                        else if (typeParametre == Date.class) {
+                            LocalDate localDate = LocalDate.parse(valStr.replaceAll("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                            rep[i] = date;
+                        }
                     }
-                    else if (typeParametre == Integer.class) {
-                        Integer intValue = Integer.parseInt(valStr);
-                        rep[i] = intValue;
-                    }
-                    else if (typeParametre == double.class) {
-                        double doubleValue = Double.parseDouble(valStr);
-                        rep[i] = doubleValue;
-                    }
-                    else if (typeParametre == Double.class) {
-                        Double doubleValue = Double.parseDouble(valStr);
-                        rep[i] = doubleValue;
-                    }
-                    else if (typeParametre == boolean.class) {
-                        boolean booleanValue = Boolean.parseBoolean(valStr);
-                        rep[i] = booleanValue;
-                    } else if (typeParametre == String.class) {
-                        rep[i] = valStr;
-                    }
-                    else if (typeParametre == Date.class) {
-                        String dateFormat = "yyyy-MM-dd";
-                        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
-                        Date date = formatter.parse(valStr);
-                        rep[i] = date;
+                    else {
+                        rep[i] = null;
                     }
                 }
             }
@@ -67,6 +77,7 @@ public class Utilitaire {
 
         return rep;
     }
+
 
     public static Object getObjetAttributSetted(Class clazz ,HttpServletRequest request) throws Exception {
         Object o = clazz.getConstructor().newInstance();
@@ -104,9 +115,8 @@ public class Utilitaire {
                     field.set(o, valStr);
                 }
                 else if (typeAttribut == Date.class) {
-                    String dateFormat = "yyyy-MM-dd";
-                    SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
-                    Date date = formatter.parse(valStr);
+                    LocalDate localDate = LocalDate.parse(valStr.replaceAll("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
                     field.set(o, date);
                 }
             }

@@ -1,8 +1,10 @@
 package objets;
 
 import etu1793.framework.annotationDao.UrlAnnotation;
+import etu1793.framework.annotationDao.ParamAnnotation;
 import etu1793.framework.modelView.ModelView;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 
@@ -39,10 +41,10 @@ public class Employe {
     }
 
     @UrlAnnotation(urlPattern = "emp_find_by_id.do")
-    public ModelView findById(Integer id) {
+    public ModelView findById(@ParamAnnotation(description = "id") Integer id,@ParamAnnotation(description = "salut") String salut,@ParamAnnotation(description = "date") Date date) {
         ModelView mv = new ModelView();
         mv.setView("emp_fiche.jsp");
-        mv.setData(new HashMap<String, Object>());
+        //mv.setData(new HashMap<String, Object>());
         ArrayList <Employe> l = new ArrayList<>();
         Employe e = new Employe("jean", 18);
         l.add(e);
@@ -52,6 +54,8 @@ public class Employe {
         l.add(e);
         mv.addItem("employe", l.get(id));
         mv.addItem("id", id);
+        mv.addItem("salut", salut);
+        mv.addItem("date", date);
         return mv;
     }
 
@@ -59,7 +63,7 @@ public class Employe {
     public ModelView save() {
         ModelView mv = new ModelView();
         mv.setView("emp_result_save.jsp");
-        mv.setData(new HashMap<String, Object>());
+        //mv.setData(new HashMap<String, Object>());
         System.out.println("nom "+getNom());
         System.out.println("age "+getAge());
         mv.addItem("employe", this);
@@ -70,7 +74,7 @@ public class Employe {
     public ModelView findAll() {
         ModelView mv = new ModelView();
         mv.setView("emp.jsp");
-        mv.setData(new HashMap<String, Object>());
+        //mv.setData(new HashMap<String, Object>());
         ArrayList <Employe> l = new ArrayList<>();
         Employe e = new Employe("jean");
         l.add(e);
