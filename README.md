@@ -2,7 +2,7 @@
 
 NB: importez framework.jar dans votre librairie
 
-# Votre projet 
+# Votre projet
 ### ajouter dans votre web.xml dans la balise "web-app" ceci pour definir le mapping vers le frontServlet :
     <servlet>
         <servlet-name>FrontServlet</servlet-name>
@@ -50,6 +50,13 @@ NB: importez framework.jar dans votre librairie
 # donnée vue vers model :
 ## 1. Utilisant les attributs de votre model
 >NB: <strong>les "name" de vos données</strong> (exemple : formulaire) doivent <strong>TOUJOURS CORRESPONDRE AUX NOMS DES ATTRIBUTS de votre model</strong>
+### --------------------------------- Upload de fichier-------------------------------------
+Si vous voulez uploader un fichier depuis un formulaire
+- L'attribut correspondant à votre fichier doit etre de type **FileUpload**  que vous importerez vie le paquet **etu1793.framework.utilitaire.FileUpload**
+- dans fileUpload il y a l'attribut :
+> String **name** : stock le nom du fichier (ex : badge.png)
+
+> byte [ ] **file** : stock les bytes du fichier
 
 ## 2. Utilisant les arguments de votre model
 >NB: <strong>les "name" de vos données</strong> (exemple : formulaire) doivent <strong>TOUJOURS CORRESPONDRE AUX NOMS DES ARGUMENTS de votre model</strong>
