@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URL;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,54 +22,159 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import jakarta.servlet.http.Part;
+import java.util.Collection;
+import java.nio.file.Files;
 
 public class Utilitaire {
 
     @SuppressWarnings("rawtypes")
 
+    // avec upload
+    public static Object getObjetAttributSetted(Class clazz, HttpServletRequest request) throws Exception {
+        Object o = clazz.getConstructor().newInstance();
+
+        // set des attributs correspondants
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        for (String parameterName : parameterMap.keySet()) {
+            // verifier ra nom ana attribut ao amle classe ilay parametre
+            if (attributeExists(clazz, parameterName) == true) {
+                Field field = clazz.getDeclaredField(parameterName);
+                field.setAccessible(true);
+                Class typeAttribut = field.getType();
+                String[] parameterValues = parameterMap.get(parameterName);
+                String valStr = parameterValues[0];
+                if (typeAttribut == int.class) {
+                    int intValue = Integer.parseInt(valStr);
+                    field.setInt(o, intValue);
+                } else if (typeAttribut == Integer.class) {
+                    Integer intValue = Integer.parseInt(valStr);
+                    field.set(o, intValue);
+                } else if (typeAttribut == double.class) {
+                    double doubleValue = Double.parseDouble(valStr);
+                    field.setDouble(o, doubleValue);
+                } else if (typeAttribut == Double.class) {
+                    Double doubleValue = Double.parseDouble(valStr);
+                    field.set(o, doubleValue);
+                } else if (typeAttribut == boolean.class) {
+                    boolean booleanValue = Boolean.parseBoolean(valStr);
+                    field.setBoolean(o, booleanValue);
+                } else if (typeAttribut == String.class) {
+                    field.set(o, valStr);
+                } else if (typeAttribut == Date.class) {
+                    LocalDate localDate = LocalDate.parse(valStr.replaceAll("\"", ""),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                    field.set(o, date);
+                }
+            }
+        }
+
+        // traitement en cas de input type = file
+        // Récupérer tous les objets Part du formulaire
+        Collection<Part> parts = request.getParts();
+        for (Part part : parts) {
+            if (attributeExists(clazz, part.getName()) == true) {
+                Field field = clazz.getDeclaredField(part.getName());
+                field.setAccessible(true);
+                Class typeAttribut = field.getType();
+                if (typeAttribut == FileUpload.class) {
+                    FileUpload fileUpload = getFileUploadAfterTraitement(part);
+                    field.set(o, fileUpload);
+                }
+            }
+        }
+
+        return o;
+    }
+
+    public static FileUpload getFileUploadAfterTraitement(Part part) throws Exception {
+        FileUpload fileUpload = new FileUpload();
+
+        // Récupérer le name du champ file
+        // String name = part.getName();
+
+        // Extraire le nom du fichier
+        String nomFichier = getNomFichier(part);
+        fileUpload.setName(nomFichier);
+
+        // Récupérer les octets (bytes) du fichier
+        byte[] octetsFichier = lireOctetsFichier(part);
+
+        // Faites ce que vous voulez avec le name, le nom du fichier et les octets
+        // Par exemple, enregistrez le fichier dans un emplacement spécifique
+        // enregistrerFichier(name, nomFichier, octetsFichier);
+
+        fileUpload.setFile(octetsFichier);
+
+        return fileUpload;
+
+    }
+
+    // Méthode utilitaire pour lire les octets (bytes) à partir d'un objet Part
+    public static byte[] lireOctetsFichier(Part part) throws Exception {
+        return part.getInputStream().readAllBytes();
+    }
+
+    // Méthode utilitaire pour enregistrer les octets (bytes) dans un fichier
+    public static void enregistrerFichier(String name, String nomFichier, byte[] octetsFichier) throws Exception {
+        // Spécifiez le chemin d'enregistrement du fichier en utilisant le name
+        String cheminEnregistrement = "./" + name + "_" + nomFichier;
+
+        // Enregistrez les octets dans le fichier en utilisant Files.write()
+        Files.write(Path.of(cheminEnregistrement), octetsFichier);
+    }
+
+    public static String getNomFichier(Part part) {
+        String contenuDisposition = part.getHeader("content-disposition");
+        String[] elements = contenuDisposition.split(";");
+        for (String element : elements) {
+            if (element.trim().startsWith("filename")) {
+                return element.substring(element.indexOf('=') + 1).trim().replace("\"", "");
+            }
+        }
+        return null;
+    }
+
     public static Object[] getListeObjetsParametres(Method m, HttpServletRequest request) throws Exception {
-        Parameter [] lp = m.getParameters();
+        Parameter[] lp = m.getParameters();
         Object[] rep = new Object[lp.length];
 
         Map<String, String[]> parameterMap = request.getParameterMap();
         for (int i = 0; i < lp.length; i++) {
-            System.out.println("isNamePresent "+lp[i].isNamePresent());
-            System.out.println("nom param "+ lp[i].getName());
-            Annotation[] annotes=lp[i].getAnnotations();
+            System.out.println("isNamePresent " + lp[i].isNamePresent());
+            System.out.println("nom param " + lp[i].getName());
+            Annotation[] annotes = lp[i].getAnnotations();
             for (Annotation annotation : annotes) {
-                if(annotation.annotationType().getSimpleName().equals("ParamAnnotation")) {
-                    String valStr = request.getParameter(annotation.annotationType().getMethod("description").invoke(annotation).toString());
-                    if(valStr != null) {
+                if (annotation.annotationType().getSimpleName().equals("ParamAnnotation")) {
+                    String valStr = request.getParameter(
+                            annotation.annotationType().getMethod("description").invoke(annotation).toString());
+                    if (valStr != null) {
                         Class typeParametre = lp[i].getType();
                         if (typeParametre == int.class) {
                             int intValue = Integer.parseInt(valStr);
                             rep[i] = intValue;
-                        }
-                        else if (typeParametre == Integer.class) {
+                        } else if (typeParametre == Integer.class) {
                             Integer intValue = Integer.parseInt(valStr);
                             rep[i] = intValue;
-                        }
-                        else if (typeParametre == double.class) {
+                        } else if (typeParametre == double.class) {
                             double doubleValue = Double.parseDouble(valStr);
                             rep[i] = doubleValue;
-                        }
-                        else if (typeParametre == Double.class) {
+                        } else if (typeParametre == Double.class) {
                             Double doubleValue = Double.parseDouble(valStr);
                             rep[i] = doubleValue;
-                        }
-                        else if (typeParametre == boolean.class) {
+                        } else if (typeParametre == boolean.class) {
                             boolean booleanValue = Boolean.parseBoolean(valStr);
                             rep[i] = booleanValue;
                         } else if (typeParametre == String.class) {
                             rep[i] = valStr;
-                        }
-                        else if (typeParametre == Date.class) {
-                            LocalDate localDate = LocalDate.parse(valStr.replaceAll("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                        } else if (typeParametre == Date.class) {
+                            LocalDate localDate = LocalDate.parse(valStr.replaceAll("\"", ""),
+                                    DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                             Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
                             rep[i] = date;
                         }
-                    }
-                    else {
+                    } else {
                         rep[i] = null;
                     }
                 }
@@ -78,52 +184,6 @@ public class Utilitaire {
         return rep;
     }
 
-
-    public static Object getObjetAttributSetted(Class clazz ,HttpServletRequest request) throws Exception {
-        Object o = clazz.getConstructor().newInstance();
-
-        //set des attributs correspondants
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        for (String parameterName : parameterMap.keySet()) {
-            //verifier ra nom ana attribut ao amle classe ilay parametre
-            if(attributeExists(clazz, parameterName) == true) {
-                Field field = clazz.getDeclaredField(parameterName);
-                field.setAccessible(true);
-                Class typeAttribut = field.getType();
-                String[] parameterValues = parameterMap.get(parameterName);
-                String valStr = parameterValues[0];
-                if (typeAttribut == int.class) {
-                    int intValue = Integer.parseInt(valStr);
-                    field.setInt(o, intValue);
-                }
-                else if (typeAttribut == Integer.class) {
-                    Integer intValue = Integer.parseInt(valStr);
-                    field.set(o, intValue);
-                }
-                else if (typeAttribut == double.class) {
-                    double doubleValue = Double.parseDouble(valStr);
-                    field.setDouble(o, doubleValue);
-                }
-                else if (typeAttribut == Double.class) {
-                    Double doubleValue = Double.parseDouble(valStr);
-                    field.set(o, doubleValue);
-                }
-                else if (typeAttribut == boolean.class) {
-                    boolean booleanValue = Boolean.parseBoolean(valStr);
-                    field.setBoolean(o, booleanValue);
-                } else if (typeAttribut == String.class) {
-                    field.set(o, valStr);
-                }
-                else if (typeAttribut == Date.class) {
-                    LocalDate localDate = LocalDate.parse(valStr.replaceAll("\"", ""), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                    Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-                    field.set(o, date);
-                }
-            }
-        }
-        return o;
-    }
-
     public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request) throws Exception {
         String className = mapping.getClassName();
         String methodName = mapping.getMethod();
@@ -131,21 +191,21 @@ public class Utilitaire {
         Class clazz = loader.loadClass(className);
         Method methode = null;
         for (Method m : clazz.getDeclaredMethods()) {
-            if(methodName == m.getName()) {
+            if (methodName == m.getName()) {
                 methode = m;
             }
         }
 
-        if(methode == null) throw new Exception("aucune methode ne correspond à "+methodName);
+        if (methode == null)
+            throw new Exception("aucune methode ne correspond à " + methodName);
 
         Object o = getObjetAttributSetted(clazz, request);
         ModelView mv = null;
 
-        if(methode.getParameters().length > 0) {
+        if (methode.getParameters().length > 0) {
             Object[] arguments = getListeObjetsParametres(methode, request);
             mv = (ModelView) methode.invoke(o, arguments);
-        }
-        else {
+        } else {
             mv = (ModelView) methode.invoke(o);
         }
         return mv;
@@ -153,17 +213,17 @@ public class Utilitaire {
 
     public static boolean attributeExists(Class clazz, String attributeName) {
         try {
-          Field field = clazz.getDeclaredField(attributeName);
-          return true;
+            Field field = clazz.getDeclaredField(attributeName);
+            return true;
         } catch (NoSuchFieldException e) {
-          return false;
+            return false;
         }
     }
 
     public static String getURLPattern(HttpServletRequest request) throws Exception {
-        //String rep = request.getPathInfo();
+        // String rep = request.getPathInfo();
         String rep = request.getServletPath();
-        if(rep == null){
+        if (rep == null) {
             rep = "/";
             return rep;
         }
