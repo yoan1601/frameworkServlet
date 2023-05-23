@@ -70,18 +70,26 @@ public class Utilitaire {
             }
         }
 
-        // traitement en cas de input type = file
-        // Récupérer tous les objets Part du formulaire
-        Collection<Part> parts = request.getParts();
-        for (Part part : parts) {
-            if (attributeExists(clazz, part.getName()) == true) {
-                Field field = clazz.getDeclaredField(part.getName());
-                field.setAccessible(true);
-                Class typeAttribut = field.getType();
-                if (typeAttribut == FileUpload.class) {
-                    FileUpload fileUpload = getFileUploadAfterTraitement(part);
-                    field.set(o, fileUpload);
+        String contentType = request.getContentType();
+    
+        if (contentType != null && contentType.startsWith("multipart/")) {
+            try {
+                // traitement en cas de input type = file
+                // Récupérer tous les objets Part du formulaire
+                Collection<Part> parts = request.getParts();
+                for (Part part : parts) {
+                    if (attributeExists(clazz, part.getName()) == true) {
+                        Field field = clazz.getDeclaredField(part.getName());
+                        field.setAccessible(true);
+                        Class typeAttribut = field.getType();
+                        if (typeAttribut == FileUpload.class) {
+                            FileUpload fileUpload = getFileUploadAfterTraitement(part);
+                            field.set(o, fileUpload);
+                        }
+                    }
                 }
+            } catch (Exception e) {
+                // Gestion de l'exception si la requête n'est pas multipart ou en cas d'erreur de traitement multipart
             }
         }
 
