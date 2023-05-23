@@ -53,6 +53,16 @@ NB: importez framework.jar dans votre librairie
 ### --------------------------------- Upload de fichier-------------------------------------
 Si vous voulez uploader un fichier depuis un formulaire
 - L'attribut correspondant à votre fichier doit etre de type **FileUpload**  que vous importerez vie le paquet **etu1793.framework.utilitaire.FileUpload**
+- le formulaire doit contenir l'attriibut **enctype="multipart/form-data"**
+- exemple
+
+        <form action="client_save.do" method="post" enctype="multipart/form-data">
+                <p><input type="text" name="nom" id="nom" placeholder="nom" required></p>
+                <p><input type="date" name="dateNaissance" id="dateNaissance" placeholder="dateNaissance" required></p>
+                <p><input type="file" name="badge" id="badge" placeholder="badge" required></p>
+                <p><input type="submit" value="save"></p>
+        </form>
+        
 - dans fileUpload il y a l'attribut :
 > String **name** : stock le nom du fichier (ex : badge.png)
 
