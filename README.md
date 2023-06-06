@@ -47,6 +47,22 @@ NB: importez framework.jar dans votre librairie
     2.Dans votre vue, vous obtiendrez votre donnée en utilisant la méthode request.getAttribute(String clé), n'oubliez pas de caster l'objet retourné par le type adéquat
 
 &nbsp;
+## SINGLETON
+
+Votre classe peut etre de type singleton (instance unique pour toute la session), pour cela il faut annoter votre classe par **@Scope(type = "singleton")** ,annotation importee depuis la librairie **etu1793.framework.annotationDao.Scope**
+
+*exemple*: vous avez une classe nommee 'Client' et vous voulez qu'elle soit un singleton
+
+    import etu1793.framework.annotationDao.Scope;
+
+    @Scope(type = "singleton")
+    public class Client {
+        ...
+    }
+
+
+
+&nbsp;
 # donnée vue vers model :
 ## 1. Utilisant les attributs de votre model
 >NB: <strong>les "name" de vos données</strong> (exemple : formulaire) doivent <strong>TOUJOURS CORRESPONDRE AUX NOMS DES ATTRIBUTS de votre model</strong>
@@ -67,7 +83,7 @@ Si vous voulez uploader un fichier depuis un formulaire
 > String **name** : stock le nom du fichier (ex : badge.png)
 
 > byte [ ] **file** : stock les bytes du fichier
-
+### --------------------------------- FIN Upload de fichier-------------------------------------
 ## 2. Utilisant les arguments de votre model
 >NB: <strong>les "name" de vos données</strong> (exemple : formulaire) doivent <strong>TOUJOURS CORRESPONDRE AUX NOMS DES ARGUMENTS de votre model</strong>
 
