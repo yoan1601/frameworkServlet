@@ -7,17 +7,22 @@ import etu1793.framework.utilitaire.FileUpload;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import etu1793.framework.annotationDao.Scope;
 
+@Scope(type = "singleton")
 public class Client {
     String nom;
     Date dateNaissance;
     FileUpload badge;
+    private int nbAppels = 0;
 
     @UrlAnnotation(urlPattern = "client_save.do")
     public ModelView save() {
         ModelView mv = new ModelView();
         mv.setView("client_result_save.jsp");
         mv.addItem("client", this);
+        nbAppels++;
+        mv.addItem("nbAppels",nbAppels);
         return mv;
     }
 

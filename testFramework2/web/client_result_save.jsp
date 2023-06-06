@@ -2,6 +2,7 @@
 <%@page import="objets.*" %>
 <%
     Client c = (Client) request.getAttribute("client");
+    int nbAppels = (int) request.getAttribute("nbAppels");
 %>
 
 <!DOCTYPE html>
@@ -15,6 +16,7 @@
         <h3>Client saved</h3>
         <h6>Nom : <%= c.getNom() %></h6>
         <h6>Date de naissance : <%= c.getDateNaissance() %></h6>
+        <h6>Nombre d'appels : <%= nbAppels %></h6>
         <h6>Intitule du badge : <%= c.getBadge().getName() %></h6>
         <p>
             <h6>inof sur les bytes du badge : </h6>

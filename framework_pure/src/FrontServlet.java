@@ -23,6 +23,7 @@ import jakarta.servlet.annotation.MultipartConfig;
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> mappingUrls;
+    HashMap<String , Object> singletons;
 
     public void init() throws ServletException {
         try {
@@ -31,6 +32,7 @@ public class FrontServlet extends HttpServlet {
             String appName = servletContext.getContextPath();
             String repertoire = getServletContext().getRealPath("/WEB-INF/classes/");
             mappingUrls = Init.getUrlMethods(repertoire);
+            singletons = Init.getSingletons(repertoire);
         } catch (Exception e) {
             System.out.print(e.getLocalizedMessage());
         }
@@ -51,9 +53,9 @@ public class FrontServlet extends HttpServlet {
             String urlPattern = Utilitaire.getURLPattern(request);
 
             if (mappingUrls.containsKey(urlPattern) == true) {
-                ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern), request);
+                ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern), request, singletons);
 
-                out.print("ok");
+                // out.print("ok");
                 if (mv.getData() instanceof HashMap) {
                     for (Map.Entry<String, Object> entry : mv.getData().entrySet()) {
                         String key = entry.getKey();

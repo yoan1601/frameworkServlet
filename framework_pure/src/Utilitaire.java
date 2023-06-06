@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
@@ -25,14 +26,49 @@ import java.time.ZoneId;
 import jakarta.servlet.http.Part;
 import java.util.Collection;
 import java.nio.file.Files;
+import java.util.HashMap;
 
 public class Utilitaire {
 
     @SuppressWarnings("rawtypes")
 
     // avec upload
-    public static Object getObjetAttributSetted(Class clazz, HttpServletRequest request) throws Exception {
-        Object o = clazz.getConstructor().newInstance();
+    public static Object getObjetAttributSetted(Class clazz, HttpServletRequest request, HashMap<String , Object> singletons) throws Exception {
+        Object o = null;
+        String className = clazz.getSimpleName();
+        
+        //si classe singleton
+        if(singletons.containsKey(className) == true) {
+            System.out.println(className+" est un singleton");
+            o = singletons.get(className);
+            if(o == null) {
+                System.out.println(className+" : objet encore null");
+                o = clazz.getConstructor().newInstance();
+                singletons.put(className, o);
+            }
+            else {
+                System.out.println(className+" : objet deja instance ... reset des valeurs des attributs");
+                Field [] allFields = o.getClass().getDeclaredFields();
+                Class typeAttribut = null;
+                for (Field field : allFields) {
+                    field.setAccessible(true);
+                    typeAttribut = field.getType();
+                    if(typeAttribut == int.class || typeAttribut == double.class) {
+                        field.set(o, 0);
+                        System.out.println(field.getName() + " : "+ typeAttribut.getSimpleName() + " reinitialise en 0");
+                    }
+                    else {
+                        field.set(o, null);
+                        System.out.println(field.getName() + " : "+ typeAttribut.getSimpleName() + " reinitialise en null");
+                    }
+                    
+                }
+            }
+        }
+        //sinon
+        else {
+            o = clazz.getConstructor().newInstance();
+        }
 
         // set des attributs correspondants
         Map<String, String[]> parameterMap = request.getParameterMap();
@@ -192,7 +228,7 @@ public class Utilitaire {
         return rep;
     }
 
-    public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request) throws Exception {
+    public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request, HashMap<String , Object> singletons) throws Exception {
         String className = mapping.getClassName();
         String methodName = mapping.getMethod();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -207,7 +243,7 @@ public class Utilitaire {
         if (methode == null)
             throw new Exception("aucune methode ne correspond à " + methodName);
 
-        Object o = getObjetAttributSetted(clazz, request);
+        Object o = getObjetAttributSetted(clazz, request, singletons);
         ModelView mv = null;
 
         if (methode.getParameters().length > 0) {
