@@ -6,12 +6,14 @@ import etu1793.framework.modelView.ModelView;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import etu1793.framework.annotationDao.Scope;
 
-
+@Scope(type = "autre")
 public class Employe {
 
     private String nom;
     private Integer age;
+    private int nbAppels = 0;
 
 	public Employe() {}
 
@@ -56,6 +58,8 @@ public class Employe {
         mv.addItem("id", id);
         mv.addItem("salut", salut);
         mv.addItem("date", date);
+        nbAppels++;
+        mv.addItem("nbAppels",nbAppels);
         return mv;
     }
 
@@ -67,6 +71,8 @@ public class Employe {
         System.out.println("nom "+getNom());
         System.out.println("age "+getAge());
         mv.addItem("employe", this);
+        nbAppels++;
+        mv.addItem("nbAppels",nbAppels);
         return mv;
     }
 
@@ -83,6 +89,8 @@ public class Employe {
         e = new Employe("patrik");
         l.add(e);
         mv.addItem("listeAllEmp", l);
+        nbAppels++;
+        mv.addItem("nbAppels",nbAppels);
         return mv;
     }
 
@@ -92,6 +100,8 @@ public class Employe {
         ModelView mv = new ModelView();
         //mv.setView("coucou.html");
         mv.setView("coucou.jsp");
+        nbAppels++;
+        mv.addItem("nbAppels",nbAppels);
         return mv;
     }
 }

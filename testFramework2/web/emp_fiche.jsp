@@ -5,6 +5,7 @@
     Integer id = Integer.valueOf(request.getAttribute("id").toString());
     String salut = request.getAttribute("salut").toString();
     Date date = (Date) request.getAttribute("date");
+    int nbAppels = (int) request.getAttribute("nbAppels");
 %>
 
 <!DOCTYPE html>
@@ -21,5 +22,6 @@
         <h6>Nom : <%= e.getNom() %></h6>
         <h6>age : <%= e.getAge() %></h6>
         <h6>date : <%= date %></h6>
+        <h6>Nombre d'appels : <%= nbAppels %></h6>
     </body>
 </html>
