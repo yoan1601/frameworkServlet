@@ -61,7 +61,7 @@ Votre classe peut etre de type singleton (instance unique pour toute la session)
     }
 
 &nbsp;
-## AUTHENTIFICATION
+## AUTHENTIFICATION ET PRIVILEGES
 Si vous voulez ajouter des privilèges sur vos fonctions, procedez comme suit :
 
 - Configurez votre **web.xml**:
