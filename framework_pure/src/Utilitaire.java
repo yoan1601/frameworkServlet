@@ -2,6 +2,7 @@
 package etu1793.framework.utilitaire;
 
 import etu1793.framework.Mapping;
+import etu1793.framework.annotationDao.auth;
 import etu1793.framework.modelView.ModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -27,45 +28,73 @@ import jakarta.servlet.http.Part;
 import java.util.Collection;
 import java.nio.file.Files;
 import java.util.HashMap;
+import jakarta.servlet.http.HttpSession;
 
 public class Utilitaire {
 
     @SuppressWarnings("rawtypes")
 
+    static void verifIfNecessaryAuth(Method methode, HttpServletRequest request, String refRole) throws Exception {
+        if (isAnnotedMethodAuth(methode)) {
+            auth au = (auth) methode.getAnnotation(auth.class);
+            String roleNecessaire = au.role();
+            HttpSession session = request.getSession();
+            if (((String) session.getAttribute(refRole)).equalsIgnoreCase("admin") == false) { // si autre que admin
+                if (roleNecessaire.equalsIgnoreCase("admin") == true) { // mila privilege admin
+                    throw new Exception("access denied de la methode " + methode.getName() + " privilege : "
+                            + roleNecessaire + " , votre role : " + session.getAttribute(refRole));
+                }
+            }
+            System.out.println("== methode " + methode.getName() + " auth necessaire");
+            System.out.println("== role necessaire " + roleNecessaire + " votre role " + session.getAttribute(refRole));
+        }
+    }
+
+    public static boolean isAnnotedMethodAuth(Method m) {
+
+        auth au = (auth) m.getAnnotation(auth.class);
+        if (au != null)
+            return true;
+
+        return false;
+
+    }
+
     // avec upload
-    public static Object getObjetAttributSetted(Class clazz, HttpServletRequest request, HashMap<String , Object> singletons) throws Exception {
+    public static Object getObjetAttributSetted(Class clazz, HttpServletRequest request,
+            HashMap<String, Object> singletons) throws Exception {
         Object o = null;
         String className = clazz.getSimpleName();
-        
-        //si classe singleton
-        if(singletons.containsKey(className) == true) {
-            System.out.println(className+" est un singleton");
+
+        // si classe singleton
+        if (singletons.containsKey(className) == true) {
+            System.out.println(className + " est un singleton");
             o = singletons.get(className);
-            if(o == null) {
-                System.out.println(className+" : objet encore null");
+            if (o == null) {
+                System.out.println(className + " : objet encore null");
                 o = clazz.getConstructor().newInstance();
                 singletons.put(className, o);
-            }
-            else {
-                System.out.println(className+" : objet deja instance ... reset des valeurs des attributs");
-                Field [] allFields = o.getClass().getDeclaredFields();
+            } else {
+                System.out.println(className + " : objet deja instance ... reset des valeurs des attributs");
+                Field[] allFields = o.getClass().getDeclaredFields();
                 Class typeAttribut = null;
                 for (Field field : allFields) {
                     field.setAccessible(true);
                     typeAttribut = field.getType();
-                    if(typeAttribut == int.class || typeAttribut == double.class) {
+                    if (typeAttribut == int.class || typeAttribut == double.class) {
                         field.set(o, 0);
-                        System.out.println(field.getName() + " : "+ typeAttribut.getSimpleName() + " reinitialise en 0");
-                    }
-                    else {
+                        System.out
+                                .println(field.getName() + " : " + typeAttribut.getSimpleName() + " reinitialise en 0");
+                    } else {
                         field.set(o, null);
-                        System.out.println(field.getName() + " : "+ typeAttribut.getSimpleName() + " reinitialise en null");
+                        System.out.println(
+                                field.getName() + " : " + typeAttribut.getSimpleName() + " reinitialise en null");
                     }
-                    
+
                 }
             }
         }
-        //sinon
+        // sinon
         else {
             o = clazz.getConstructor().newInstance();
         }
@@ -107,7 +136,7 @@ public class Utilitaire {
         }
 
         String contentType = request.getContentType();
-    
+
         if (contentType != null && contentType.startsWith("multipart/")) {
             try {
                 // traitement en cas de input type = file
@@ -125,7 +154,8 @@ public class Utilitaire {
                     }
                 }
             } catch (Exception e) {
-                // Gestion de l'exception si la requête n'est pas multipart ou en cas d'erreur de traitement multipart
+                // Gestion de l'exception si la requête n'est pas multipart ou en cas d'erreur
+                // de traitement multipart
             }
         }
 
@@ -228,7 +258,8 @@ public class Utilitaire {
         return rep;
     }
 
-    public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request, HashMap<String , Object> singletons) throws Exception {
+    public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request,
+            HashMap<String, Object> singletons, String refRole) throws Exception {
         String className = mapping.getClassName();
         String methodName = mapping.getMethod();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -242,6 +273,9 @@ public class Utilitaire {
 
         if (methode == null)
             throw new Exception("aucune methode ne correspond à " + methodName);
+
+        // authentification
+        verifIfNecessaryAuth(methode, request, refRole);
 
         Object o = getObjetAttributSetted(clazz, request, singletons);
         ModelView mv = null;

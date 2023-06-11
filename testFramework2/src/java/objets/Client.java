@@ -22,7 +22,7 @@ public class Client {
         mv.setView("client_result_save.jsp");
         mv.addItem("client", this);
         nbAppels++;
-        mv.addItem("nbAppels",nbAppels);
+        mv.addItem("nbAppels", nbAppels);
         return mv;
     }
 
