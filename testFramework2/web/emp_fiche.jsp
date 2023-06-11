@@ -22,6 +22,5 @@
         <h6>Nom : <%= e.getNom() %></h6>
         <h6>age : <%= e.getAge() %></h6>
         <h6>date : <%= date %></h6>
-        <h6>Nombre d'appels : <%= nbAppels %></h6>
     </body>
 </html>

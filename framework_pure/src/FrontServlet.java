@@ -18,21 +18,29 @@ import java.util.logging.Logger;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.http.HttpSession;
 
 @MultipartConfig
 public class FrontServlet extends HttpServlet {
 
     HashMap<String, Mapping> mappingUrls;
-    HashMap<String , Object> singletons;
+    HashMap<String, Object> singletons;
+    String refIsConnected;
+    String refRole;
 
     public void init() throws ServletException {
         try {
             String workingDir = System.getProperty("user.dir");
-            ServletContext servletContext = getServletContext();
+            ServletContext servletContext = this.getServletContext();
             String appName = servletContext.getContextPath();
-            String repertoire = getServletContext().getRealPath("/WEB-INF/classes/");
+            String repertoire = this.getServletContext().getRealPath("/WEB-INF/classes/");
             mappingUrls = Init.getUrlMethods(repertoire);
             singletons = Init.getSingletons(repertoire);
+
+            // session
+            refIsConnected = this.getInitParameter("isConnected");
+            refRole = this.getInitParameter("role");
         } catch (Exception e) {
             System.out.print(e.getLocalizedMessage());
         }
@@ -43,31 +51,48 @@ public class FrontServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
 
-            String workingDir = System.getProperty("user.dir");
-            ServletContext servletContext = getServletContext();
+            try {
+                String workingDir = System.getProperty("user.dir");
+                ServletContext servletContext = this.getServletContext();
 
-            String appName = servletContext.getContextPath();
+                String appName = servletContext.getContextPath();
 
-            String repertoire = getServletContext().getRealPath("/WEB-INF/classes/");
+                String repertoire = this.getServletContext().getRealPath("/WEB-INF/classes/");
 
-            String urlPattern = Utilitaire.getURLPattern(request);
+                String urlPattern = Utilitaire.getURLPattern(request);
 
-            if (mappingUrls.containsKey(urlPattern) == true) {
-                ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern), request, singletons);
+                if (mappingUrls.containsKey(urlPattern) == true) {
+                    ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern), request, singletons, refRole);
 
-                // out.print("ok");
-                if (mv.getData() instanceof HashMap) {
-                    for (Map.Entry<String, Object> entry : mv.getData().entrySet()) {
-                        String key = entry.getKey();
-                        Object o = entry.getValue();
-                        request.setAttribute(key, o);
+                    // out.print("ok");
+                    if (mv.getData() instanceof HashMap) {
+                        for (Map.Entry<String, Object> entry : mv.getData().entrySet()) {
+                            String key = entry.getKey();
+                            Object o = entry.getValue();
+                            request.setAttribute(key, o);
+                        }
                     }
+
+                    // session
+                    if (mv.getSession().containsKey(refIsConnected) && mv.getSession().containsKey(refRole)) {
+                        // matoa tafiditra ato de methode authentify izy zay
+                        HttpSession session = request.getSession();
+                        session.setAttribute(refIsConnected, mv.getSession().get(refIsConnected));
+                        session.setAttribute(refRole, mv.getSession().get(refRole));
+                        System.out.println("authentification succes");
+                        System.out.println("session isConnected " + session.getAttribute(refIsConnected));
+                        System.out.println("session role " + session.getAttribute(refRole));
+                    }
+
+                    RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
+                    dispat.forward(request, response);
+                } else {
+                    out.print("methode referencée par " + urlPattern + " introuvable");
                 }
-                RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
-                dispat.forward(request, response);
-            } else {
-                out.print("methode referencée par " + urlPattern + " introuvable");
+            } catch (Exception e) {
+                out.println(e.getMessage());
             }
+
         }
     }
 

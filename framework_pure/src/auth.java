@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface UrlAnnotation {
-    String urlPattern() default "/";
+public @interface auth {
+    String role() default "autre";
 }

@@ -17,9 +17,9 @@ public class Init {
         ArrayList<Class> allClasses = getAllClasses(repertoire);
         Scope scope = null;
         for (Class clazz : allClasses) {
-            if(isAnnotedClass(clazz, "Scope") == true) {
+            if (isAnnotedClass(clazz, "Scope") == true) {
                 scope = (Scope) clazz.getAnnotation(Scope.class);
-                if(scope.type().equalsIgnoreCase("singleton") == true) {
+                if (scope.type().equalsIgnoreCase("singleton") == true) {
                     singletons.put(clazz.getSimpleName(), null);
                 }
             }
@@ -28,24 +28,24 @@ public class Init {
         return singletons;
     }
 
-
     public static boolean isAnnotedClass(Class c, String annotName) {
-        if(annotName.equalsIgnoreCase("Scope")) {
+        if (annotName.equalsIgnoreCase("Scope")) {
             Scope s = (Scope) c.getAnnotation(Scope.class);
-            if(s != null) return true;
+            if (s != null)
+                return true;
         }
         return false;
     }
 
-    public static ArrayList<Class> getAllClasses(String repertoire) throws Exception{
+    public static ArrayList<Class> getAllClasses(String repertoire) throws Exception {
         ArrayList<Class> rep = new ArrayList<>();
         File dossier = new File(repertoire);
         Class[] allClass = null;
-        //System.out.println("workingDir "+ workingDir);
-        ArrayList <String> pkg = new ArrayList<>();
+        // System.out.println("workingDir "+ workingDir);
+        ArrayList<String> pkg = new ArrayList<>();
         pkg = Init.listPackagesWithClasses(dossier, "", pkg);
-        for(int i = 0; i < pkg.size(); i++) {
-            //System.out.println(pkg.get(i));
+        for (int i = 0; i < pkg.size(); i++) {
+            // System.out.println(pkg.get(i));
             allClass = Utilitaire.getClasses(pkg.get(i));
             for (Class clazz : allClass) {
                 rep.add(clazz);
@@ -56,8 +56,8 @@ public class Init {
 
     public static HashMap<String, Mapping> getUrlMethods(String repertoire) throws Exception {
         HashMap<String, Mapping> rep = new HashMap<String, Mapping>();
-        Object [] allClassObj = getAllClasses(repertoire).toArray();
-        Class [] allClass = new Class[allClassObj.length];
+        Object[] allClassObj = getAllClasses(repertoire).toArray();
+        Class[] allClass = new Class[allClassObj.length];
         String url = "";
         UrlAnnotation ua = null;
         Mapping mapping = new Mapping();
@@ -65,10 +65,10 @@ public class Init {
             allClass[i] = (Class) allClassObj[i];
         }
         for (Class clazz : allClass) {
-            //System.out.println("> classe "+ clazz.getName());
-            Method [] lm = clazz.getMethods();
+            // System.out.println("> classe "+ clazz.getName());
+            Method[] lm = clazz.getMethods();
             for (Method m : lm) {
-                if(isAnnotedMethod(m, "UrlAnnotation") == true) {
+                if (isAnnotedMethod(m, "UrlAnnotation") == true) {
                     ua = (UrlAnnotation) m.getAnnotation(UrlAnnotation.class);
                     url = ua.urlPattern();
                     mapping = new Mapping();
@@ -82,23 +82,23 @@ public class Init {
     }
 
     public static Method getMethodAnnotedByUrlPattern(String urlPattern, String repertoire) throws Exception {
-        //String workingDir = System.getProperty("user.dir");
+        // String workingDir = System.getProperty("user.dir");
         File dossier = new File(repertoire);
         Class[] allClass = null;
-        //System.out.println("workingDir "+ workingDir);
-        ArrayList <String> pkg = new ArrayList<>();
+        // System.out.println("workingDir "+ workingDir);
+        ArrayList<String> pkg = new ArrayList<>();
         UrlAnnotation ua = null;
         pkg = Init.listPackagesWithClasses(dossier, "", pkg);
-        for(int i = 0; i < pkg.size(); i++) {
-            //System.out.println(pkg.get(i));
+        for (int i = 0; i < pkg.size(); i++) {
+            // System.out.println(pkg.get(i));
             allClass = Utilitaire.getClasses(pkg.get(i));
             for (Class clazz : allClass) {
-                //System.out.println("> classe "+ clazz.getName());
-                Method [] lm = clazz.getMethods();
+                // System.out.println("> classe "+ clazz.getName());
+                Method[] lm = clazz.getMethods();
                 for (Method m : lm) {
-                    if(isAnnotedMethod(m, "UrlAnnotation") == true) {
+                    if (isAnnotedMethod(m, "UrlAnnotation") == true) {
                         ua = (UrlAnnotation) m.getAnnotation(UrlAnnotation.class);
-                        if(urlPattern.equals(ua.urlPattern()) == true) {
+                        if (urlPattern.equals(ua.urlPattern()) == true) {
                             return m;
                         }
                     }
@@ -112,7 +112,14 @@ public class Init {
 
         if (annotName.equalsIgnoreCase("UrlAnnotation")) {
             UrlAnnotation ua = (UrlAnnotation) m.getAnnotation(UrlAnnotation.class);
-            if(ua != null) return true;
+            if (ua != null)
+                return true;
+        }
+
+        if (annotName.equalsIgnoreCase("auth")) {
+            UrlAnnotation ua = (UrlAnnotation) m.getAnnotation(UrlAnnotation.class);
+            if (ua != null)
+                return true;
         }
 
         return false;

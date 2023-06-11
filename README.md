@@ -60,7 +60,93 @@ Votre classe peut etre de type singleton (instance unique pour toute la session)
         ...
     }
 
+&nbsp;
+## AUTHENTIFICATION
+Si vous voulez ajouter des privilèges sur vos fonctions, procedez comme suit :
 
+- Configurez votre **web.xml**:
+ .ajoutez 1 init-param **isConnected** avec init-value de **votre choix**,
+ .ajoutez 1 init-param **role** avec init-value de **votre choix**
+
+- exemple :
+
+        <web-app>
+        <servlet>
+            ...
+            <init-param>
+                <param-name>isConnected</param-name>
+                <param-value>estConnecte</param-value>
+            </init-param>
+            <init-param>
+                <param-name>role</param-name>
+                <param-value>role</param-value>
+            </init-param>
+        </servlet>
+        ...
+        </web-app>
+
+- Creez une **fonction d'authentification** qui prend en argument le login ,le mot de passe etc, qui serviront à connecter l'utilisateur et à lui affecter un role et de plus à configurer la session, dans le cas où l'authentification a échoué, vous pouvez faire une redirection dans la partie else { ... }
+- exemple
+
+        import etu1793.framework.annotationDao.auth;
+        import etu1793.framework.annotationDao.UrlAnnotation;
+        import etu1793.framework.annotationDao.ParamAnnotation;
+        import etu1793.framework.modelView.ModelView;
+
+        @UrlAnnotation(urlPattern = "auth.do")
+        public ModelView authentify(@ParamAnnotation(description = "login") String login,
+            @ParamAnnotation(description = "pwd") String pwd) {
+            ModelView mv = new ModelView();
+
+            if (login.equals("yoan") && pwd.equals("1234")) {
+                mv.getSession().put("isConnected", true);
+                mv.getSession().put("role", "autre");
+                mv.setView("accueil.jsp");
+            }
+
+            else if (login.equals("admin") && pwd.equals("1234")) {
+                mv.getSession().put("isConnected", true);
+                mv.getSession().put("role", "admin");
+                mv.setView("accueil.jsp");
+            }
+
+            else {
+                mv.setView("index.jsp");
+            }
+
+            return mv;
+        }
+
+> ATTENTION : le role administrateur doit etre exactement **"admin"**
+
+- Annotez vos methodes par **@auth(role = ...)** pour filtrer les privileges pouvant l'acceder
+- exemple : la methode "save" ci-dessous **n'est accessible que par l'administrateur donc role = "admin"**
+
+        import etu1793.framework.annotationDao.auth;
+        import etu1793.framework.annotationDao.UrlAnnotation;
+        import etu1793.framework.modelView.ModelView;
+
+        @UrlAnnotation(urlPattern = "emp_save.do")
+        @auth(role = "admin")
+        public ModelView save() {
+            ModelView mv = new ModelView();
+            mv.setView("emp_result_save.jsp");
+            mv.addItem("employe", this);
+            return mv;
+        }
+> Notez que si vous voulez que la fonction soit **accessible par tous** : vous pouvez assigner d'**autre valeur à role de @auth(role)**, soit ne pas annoter la methode par @auth
+
+. Creez votre formulaire d'authentification : il faut que les **names** des **inputs** soient **conformes** aux descriptions de **@ParamAnnotation** de votre fonction d'authentification (dans notre cas : login et pwd)
+
+. exemple : dans notre cas login et pwd
+
+        <form action="auth.do" method="post">
+            <input type="text" name="login" id="login" required>
+            <input type="password" name="pwd" id="pwd" required>
+            <input type="submit" value="se connecter">
+        </form>
+
+> N'oubliez pas de configurer **action** de votre form, il doit être identique à la valeur de **@UrlAnnotation(urlPattern = "auth.do")** de la fonction d'authentification
 
 &nbsp;
 # donnée vue vers model :
@@ -78,7 +164,7 @@ Si vous voulez uploader un fichier depuis un formulaire
                 <p><input type="file" name="badge" id="badge" placeholder="badge" required></p>
                 <p><input type="submit" value="save"></p>
         </form>
-        
+
 - dans fileUpload il y a l'attribut :
 > String **name** : stock le nom du fichier (ex : badge.png)
 
