@@ -149,6 +149,43 @@ Si vous voulez ajouter des privilèges sur vos fonctions, procedez comme suit :
 > N'oubliez pas de configurer **action** de votre form, il doit être identique à la valeur de **@UrlAnnotation(urlPattern = "auth.do")** de la fonction d'authentification
 
 &nbsp;
+## SESSION
+Vous pouvez recuperer les données de la session actuelle en suivant ces étapes :
+- Ajoutez un attribut **HashMap<String, Object> session** dans votre classe, cet attribut se comportera comme l'HttpSession de la requete : le String sera la clé et l'Object la valeur
+- Annotez votre méthode par **@Session** pour manipuler la session dans la méthode
+- Exemple :
+
+        import java.util.HashMap;
+        import etu1793.framework.annotationDao.Session;
+        import etu1793.framework.annotationDao.UrlAnnotation;
+
+        public class Client {
+
+            ---
+
+            HashMap<String, Object> session;
+
+            @Session
+            @UrlAnnotation(urlPattern = "client_save.do")
+            public ModelView save() {
+                ModelView mv = new ModelView();
+                mv.setView("client_result_save.jsp");
+
+                System.out.println("les valeurs dans la session actuelle");
+                for (Map.Entry<String, Object> entry : session.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    System.out.println(key + " -> " + value);
+                }
+
+                return mv;
+            }
+
+            ---
+
+        }
+
+&nbsp;
 # donnée vue vers model :
 ## 1. Utilisant les attributs de votre model
 >NB: <strong>les "name" de vos données</strong> (exemple : formulaire) doivent <strong>TOUJOURS CORRESPONDRE AUX NOMS DES ATTRIBUTS de votre model</strong>
