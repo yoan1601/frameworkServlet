@@ -28,6 +28,7 @@ public class FrontServlet extends HttpServlet {
     HashMap<String, Object> singletons;
     String refIsConnected;
     String refRole;
+    int sessionState = 0;
 
     public void init() throws ServletException {
         try {
@@ -62,7 +63,8 @@ public class FrontServlet extends HttpServlet {
                 String urlPattern = Utilitaire.getURLPattern(request);
 
                 if (mappingUrls.containsKey(urlPattern) == true) {
-                    ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern), request, singletons, refRole);
+                    ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern), request, singletons,
+                            refIsConnected, refRole, sessionState);
 
                     // out.print("ok");
                     if (mv.getData() instanceof HashMap) {
@@ -77,9 +79,9 @@ public class FrontServlet extends HttpServlet {
                     if (mv.getSession().containsKey(refIsConnected) && mv.getSession().containsKey(refRole)) {
                         // matoa tafiditra ato de methode authentify izy zay
                         HttpSession session = request.getSession();
-                        session.setAttribute(refIsConnected, mv.getSession().get(refIsConnected));
-                        session.setAttribute(refRole, mv.getSession().get(refRole));
-                        System.out.println("authentification succes");
+                        Utilitaire.setSession(mv, session);
+                        sessionState = 1;
+                        System.out.println("authentification succes 2.0");
                         System.out.println("session isConnected " + session.getAttribute(refIsConnected));
                         System.out.println("session role " + session.getAttribute(refRole));
                     }

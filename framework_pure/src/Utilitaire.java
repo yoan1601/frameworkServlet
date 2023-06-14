@@ -2,6 +2,7 @@
 package etu1793.framework.utilitaire;
 
 import etu1793.framework.Mapping;
+import etu1793.framework.annotationDao.Session;
 import etu1793.framework.annotationDao.auth;
 import etu1793.framework.modelView.ModelView;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import jakarta.servlet.http.HttpServlet;
@@ -34,11 +36,64 @@ public class Utilitaire {
 
     @SuppressWarnings("rawtypes")
 
-    static void verifIfNecessaryAuth(Method methode, HttpServletRequest request, String refRole) throws Exception {
+    static void processUserSession(Method methode, Object object, HttpSession httpSession) throws Exception {
+        Session session = (Session) methode.getAnnotation(Session.class);
+        if (session != null) { // mila session
+            Class clazz = methode.getDeclaringClass();
+            try {
+                Field sess = clazz.getDeclaredField("session");
+                sess.setAccessible(true);
+
+                HashMap<String, Object> attrSessionValue = new HashMap<>();
+
+                Enumeration<String> attributeNames = httpSession.getAttributeNames();
+
+                while (attributeNames.hasMoreElements()) {
+                    String attributeName = attributeNames.nextElement();
+                    Object attributeValue = httpSession.getAttribute(attributeName);
+                    attrSessionValue.put(attributeName, attributeValue);
+                }
+
+                sess.set(object, attrSessionValue);
+                System.out.println("session setted and available for the user in the methode " + methode.getName());
+
+            } catch (Exception e) {
+                throw new Exception("la methode " + methode.getName()
+                        + " utilise la session cependant la classe declarante " + clazz.getSimpleName()
+                        + " ne contient pas d'attribut HashMap<String, Object> session pour stocker la session");
+            }
+
+        }
+    }
+
+    public static void setSession(ModelView mv, HttpSession session) throws Exception {
+        HashMap<String, Object> mvSession = mv.getSession();
+        for (Map.Entry<String, Object> entry : mvSession.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            session.setAttribute(key, value);
+        }
+        /*
+         * session.setAttribute(refIsConnected, mv.getSession().get(refIsConnected));
+         * session.setAttribute(refRole, mv.getSession().get(refRole));
+         */
+    }
+
+    static void verifIfNecessaryAuth(Method methode, HttpServletRequest request, String refIsConnected, String refRole,
+            int sessionState)
+            throws Exception {
+        HttpSession session = request.getSession();
+        Object isCo = session.getAttribute(refIsConnected);
+
+        if (isCo == null) {
+            if (sessionState > 0)
+                throw new Exception("Oops ! No user connected");
+        }
+
         if (isAnnotedMethodAuth(methode)) {
             auth au = (auth) methode.getAnnotation(auth.class);
             String roleNecessaire = au.role();
-            HttpSession session = request.getSession();
+
             if (((String) session.getAttribute(refRole)).equalsIgnoreCase("admin") == false) { // si autre que admin
                 if (roleNecessaire.equalsIgnoreCase("admin") == true) { // mila privilege admin
                     throw new Exception("access denied de la methode " + methode.getName() + " privilege : "
@@ -259,7 +314,8 @@ public class Utilitaire {
     }
 
     public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request,
-            HashMap<String, Object> singletons, String refRole) throws Exception {
+            HashMap<String, Object> singletons, String refIsConnected, String refRole, int sessionState)
+            throws Exception {
         String className = mapping.getClassName();
         String methodName = mapping.getMethod();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -275,9 +331,12 @@ public class Utilitaire {
             throw new Exception("aucune methode ne correspond à " + methodName);
 
         // authentification
-        verifIfNecessaryAuth(methode, request, refRole);
+        verifIfNecessaryAuth(methode, request, refIsConnected, refRole, sessionState);
 
         Object o = getObjetAttributSetted(clazz, request, singletons);
+
+        processUserSession(methode, o, request.getSession());
+
         ModelView mv = null;
 
         if (methode.getParameters().length > 0) {
