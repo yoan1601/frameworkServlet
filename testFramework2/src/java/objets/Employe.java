@@ -44,6 +44,27 @@ public class Employe {
         return nom;
     }
 
+    @UrlAnnotation(urlPattern = "emp_all.json.do")
+    @auth(role = "autre")
+    public ModelView findAllJson() {
+        ModelView mv = new ModelView();
+        mv.setView("emp.jsp");
+        // mv.setData(new HashMap<String, Object>());
+        ArrayList<Employe> l = new ArrayList<>();
+        Employe e = new Employe("jean");
+        l.add(e);
+        e = new Employe("jacque");
+        l.add(e);
+        e = new Employe("patrik");
+        l.add(e);
+        mv.addItem("listeAllEmp", l);
+        nbAppels++;
+        mv.addItem("nbAppels", nbAppels);
+        mv.setIsJSON(true);
+        System.out.println("findAllJson mv.getIsJSON() "+mv.getIsJSON());
+        return mv;
+    }
+
     @UrlAnnotation(urlPattern = "emp_find_by_id.do")
     public ModelView findById(@ParamAnnotation(description = "id") Integer id,
             @ParamAnnotation(description = "salut") String salut, @ParamAnnotation(description = "date") Date date) {

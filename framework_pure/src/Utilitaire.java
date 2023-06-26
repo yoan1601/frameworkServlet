@@ -31,10 +31,28 @@ import java.util.Collection;
 import java.nio.file.Files;
 import java.util.HashMap;
 import jakarta.servlet.http.HttpSession;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Utilitaire {
 
     @SuppressWarnings("rawtypes")
+
+    public static String toJson(Object object) {
+        try {
+            System.out.println("toJson");
+            GsonBuilder builder = new GsonBuilder(); 
+            System.out.println("builder "+builder);
+            builder.setPrettyPrinting(); 
+            Gson gson = builder.create();
+            String jsonString = gson.toJson(object); 
+            System.out.println("jsonString "+jsonString);
+            return jsonString;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
 
     static void processUserSession(Method methode, Object object, HttpSession httpSession) throws Exception {
         Session session = (Session) methode.getAnnotation(Session.class);
@@ -316,6 +334,7 @@ public class Utilitaire {
     public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request,
             HashMap<String, Object> singletons, String refIsConnected, String refRole, int sessionState)
             throws Exception {
+        System.out.println("============================");
         String className = mapping.getClassName();
         String methodName = mapping.getMethod();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -345,6 +364,7 @@ public class Utilitaire {
         } else {
             mv = (ModelView) methode.invoke(o);
         }
+        System.out.println("methode "+methodName);
         return mv;
     }
 
