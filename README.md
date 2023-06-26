@@ -188,7 +188,10 @@ Vous pouvez recuperer les données de la session actuelle en suivant ces étapes
 &nbsp;
 ## API REST - JSON
 
-### ATTENTION : Il faut mettre la librairie **gson.jar** dans le **lib du repertoire tomcat** 
+### ATTENTION : Il faut mettre la librairie **gson.jar** dans le **lib du repertoire tomcat**
+
+&nbsp;
+### **Méthode 1**
 
 - Au lieu d'aller vers une vue, vous pouvez utiliser la methode API REST en envoyant un JSON grace a votre URL. Si c'est le cas, mettez l'attribut **isJSON** du **modelView** en **true**. Le **JSON** envoye sera l'attribut HashMap **data** du **modelView**, vous pouvez y ajouter vos donnees en utilisant la fonction **ModelView.addItem(key, value)** avec "key" comme cle et "value" comme valeur de la donnee.
 - exemple :
@@ -207,11 +210,35 @@ Vous pouvez recuperer les données de la session actuelle en suivant ces étapes
 
             //ajout de la liste d'employe dans le data
             mv.addItem("listeAllEmp", l);
-            
+
             //mettre isIsJSON en true
             mv.setIsJSON(true);
 
             return mv;
+        }
+
+&nbsp;
+### **Méthode 2**
+- Annotez votre méthode par **@RestAPI**, cela permettra de formater et d'envoyer directement en JSON votre retour
+
+- exemple :
+
+        import etu1793.framework.annotationDao.UrlAnnotation;
+        import etu1793.framework.annotationDao.RestAPI;
+
+        @RestAPI
+        @UrlAnnotation(urlPattern = "client_findAll.do")
+        public Client[] findAll() {
+            Client c0 = new Client();
+            c0.setNom("Jean");
+            Client c1 = new Client();
+            c1.setNom("joseph");
+            Client c2 = new Client();
+            c2.setNom("Jasper");
+
+            Client[] listeClients = { c0, c1, c2 };
+            return listeClients;
+            // listeClients sera converti en JSON et sera envoyé en API Rest
         }
 
 &nbsp;
