@@ -2,6 +2,7 @@
 package etu1793.framework.utilitaire;
 
 import etu1793.framework.Mapping;
+import etu1793.framework.annotationDao.RestAPI;
 import etu1793.framework.annotationDao.Session;
 import etu1793.framework.annotationDao.auth;
 import etu1793.framework.modelView.ModelView;
@@ -38,15 +39,22 @@ public class Utilitaire {
 
     @SuppressWarnings("rawtypes")
 
+    public static boolean isRestAPIJSON(Method m) {
+        RestAPI restAPI = (RestAPI) m.getAnnotation(RestAPI.class);
+        if (restAPI == null)
+            return false;
+        return true;
+    }
+
     public static String toJson(Object object) {
         try {
             System.out.println("toJson");
-            GsonBuilder builder = new GsonBuilder(); 
-            System.out.println("builder "+builder);
-            builder.setPrettyPrinting(); 
+            GsonBuilder builder = new GsonBuilder();
+            System.out.println("builder " + builder);
+            builder.setPrettyPrinting();
             Gson gson = builder.create();
-            String jsonString = gson.toJson(object); 
-            System.out.println("jsonString "+jsonString);
+            String jsonString = gson.toJson(object);
+            System.out.println("jsonString " + jsonString);
             return jsonString;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -331,7 +339,7 @@ public class Utilitaire {
         return rep;
     }
 
-    public static ModelView getMethodeMV(Mapping mapping, HttpServletRequest request,
+    public static Object getObjectReturn(Mapping mapping, HttpServletRequest request,
             HashMap<String, Object> singletons, String refIsConnected, String refRole, int sessionState)
             throws Exception {
         System.out.println("============================");
@@ -357,15 +365,28 @@ public class Utilitaire {
         processUserSession(methode, o, request.getSession());
 
         ModelView mv = null;
+        Object toRestAPI = new Object();
 
-        if (methode.getParameters().length > 0) {
-            Object[] arguments = getListeObjetsParametres(methode, request);
-            mv = (ModelView) methode.invoke(o, arguments);
+        if (isRestAPIJSON(methode) == false) {
+            if (methode.getParameters().length > 0) {
+                Object[] arguments = getListeObjetsParametres(methode, request);
+                mv = (ModelView) methode.invoke(o, arguments);
+            } else {
+                mv = (ModelView) methode.invoke(o);
+            }
+            System.out.println("methode " + methodName);
+            return mv;
         } else {
-            mv = (ModelView) methode.invoke(o);
+            if (methode.getParameters().length > 0) {
+                Object[] arguments = getListeObjetsParametres(methode, request);
+                toRestAPI = methode.invoke(o, arguments);
+            } else {
+                toRestAPI = methode.invoke(o);
+            }
+            System.out.println("methode utilisant REST API " + methodName);
+            return toRestAPI;
         }
-        System.out.println("methode "+methodName);
-        return mv;
+
     }
 
     public static boolean attributeExists(Class clazz, String attributeName) {

@@ -3,6 +3,7 @@ package objets;
 import etu1793.framework.annotationDao.Session;
 import etu1793.framework.annotationDao.UrlAnnotation;
 import etu1793.framework.annotationDao.ParamAnnotation;
+import etu1793.framework.annotationDao.RestAPI;
 import etu1793.framework.modelView.ModelView;
 import etu1793.framework.utilitaire.FileUpload;
 import java.util.ArrayList;
@@ -19,6 +20,20 @@ public class Client {
     FileUpload badge;
     private int nbAppels = 0;
     HashMap<String, Object> session;
+
+    @RestAPI
+    @UrlAnnotation(urlPattern = "client_findAll.do")
+    public Client[] findAll() {
+        Client c0 = new Client();
+        c0.setNom("Jean");
+        Client c1 = new Client();
+        c1.setNom("joseph");
+        Client c2 = new Client();
+        c2.setNom("Jasper");
+
+        Client[] lc = { c0, c1, c2 };
+        return lc;
+    }
 
     @Session
     @UrlAnnotation(urlPattern = "client_save.do")

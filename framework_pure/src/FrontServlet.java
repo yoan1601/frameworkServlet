@@ -63,48 +63,69 @@ public class FrontServlet extends HttpServlet {
                 String urlPattern = Utilitaire.getURLPattern(request);
 
                 if (mappingUrls.containsKey(urlPattern) == true) {
-                    ModelView mv = Utilitaire.getMethodeMV(mappingUrls.get(urlPattern), request, singletons,
-                            refIsConnected, refRole, sessionState);
-                    System.out.println("mv.getIsJSON() "+mv.getIsJSON());
-                    //JSON
-                    if (mv.getIsJSON() == true) {
 
-                        String json = Utilitaire.toJson(mv.getData());
-                    
-                        System.out.println("Json request "+json);
-                        
+                    Object methodeReturn = Utilitaire.getObjectReturn(mappingUrls.get(urlPattern), request, singletons,
+                            refIsConnected, refRole, sessionState);
+
+                    if (methodeReturn instanceof ModelView) {
+                        ModelView mv = (ModelView) methodeReturn;
+
+                        System.out.println("mv.getIsJSON() " + mv.getIsJSON());
+                        // JSON
+                        if (mv.getIsJSON() == true) {
+
+                            String json = Utilitaire.toJson(mv.getData());
+
+                            System.out.println("Json request " + json);
+
+                            // Définir la réponse JSON
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+
+                            // Écrire la réponse JSON
+                            out.print(json);
+                            out.flush();
+                        }
+
+                        else {
+                            // out.print("ok");
+                            if (mv.getData() instanceof HashMap) {
+                                for (Map.Entry<String, Object> entry : mv.getData().entrySet()) {
+                                    String key = entry.getKey();
+                                    Object o = entry.getValue();
+                                    request.setAttribute(key, o);
+                                }
+                            }
+
+                            // session
+                            if (mv.getSession().containsKey(refIsConnected) && mv.getSession().containsKey(refRole)) {
+                                // matoa tafiditra ato de methode authentify izy zay
+                                HttpSession session = request.getSession();
+                                Utilitaire.setSession(mv, session);
+                                sessionState = 1;
+                                System.out.println("authentification succes 2.0");
+                                System.out.println("session isConnected " + session.getAttribute(refIsConnected));
+                                System.out.println("session role " + session.getAttribute(refRole));
+                            }
+
+                            RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
+                            dispat.forward(request, response);
+                        }
+                    }
+
+                    else { // JSON par annotation
+                        System.out.println("JSON par annotation");
+                        String json = Utilitaire.toJson(methodeReturn);
+
+                        System.out.println("Json request " + json);
+
                         // Définir la réponse JSON
                         response.setContentType("application/json");
                         response.setCharacterEncoding("UTF-8");
-                        
+
                         // Écrire la réponse JSON
                         out.print(json);
                         out.flush();
-                    }
-
-                    else {
-                        // out.print("ok");
-                        if (mv.getData() instanceof HashMap) {
-                            for (Map.Entry<String, Object> entry : mv.getData().entrySet()) {
-                                String key = entry.getKey();
-                                Object o = entry.getValue();
-                                request.setAttribute(key, o);
-                            }
-                        }
-
-                        // session
-                        if (mv.getSession().containsKey(refIsConnected) && mv.getSession().containsKey(refRole)) {
-                            // matoa tafiditra ato de methode authentify izy zay
-                            HttpSession session = request.getSession();
-                            Utilitaire.setSession(mv, session);
-                            sessionState = 1;
-                            System.out.println("authentification succes 2.0");
-                            System.out.println("session isConnected " + session.getAttribute(refIsConnected));
-                            System.out.println("session role " + session.getAttribute(refRole));
-                        }
-
-                        RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
-                        dispat.forward(request, response);
                     }
 
                 } else {
