@@ -11,7 +11,7 @@ repertoire_racine="."
 #     javac -cp lib/servlet-api.jar -parameters -d classes "$fichier_java"
 #     echo 'compilation de '$fichier_java
 # done
-javac -cp lib/servlet-api.jar -parameters -d classes src/*.java
+javac -cp lib/servlet-api.jar:lib/gson-2.8.2.jar -parameters -d classes src/*.java
 #construit le .jar
 cd classes
 bash constrJar.sh

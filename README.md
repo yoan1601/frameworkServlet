@@ -186,6 +186,35 @@ Vous pouvez recuperer les données de la session actuelle en suivant ces étapes
         }
 
 &nbsp;
+## API REST - JSON
+
+### ATTENTION : Il faut mettre la librairie **gson.jar** dans le **lib du repertoire tomcat** 
+
+- Au lieu d'aller vers une vue, vous pouvez utiliser la methode API REST en envoyant un JSON grace a votre URL. Si c'est le cas, mettez l'attribut **isJSON** du **modelView** en **true**. Le **JSON** envoye sera l'attribut HashMap **data** du **modelView**, vous pouvez y ajouter vos donnees en utilisant la fonction **ModelView.addItem(key, value)** avec "key" comme cle et "value" comme valeur de la donnee.
+- exemple :
+
+        @UrlAnnotation(urlPattern = "emp_all.json.do")
+        public ModelView findAllJson() {
+
+            ModelView mv = new ModelView();
+            ArrayList<Employe> l = new ArrayList<>();
+            Employe e = new Employe("jean");
+            l.add(e);
+            e = new Employe("jacque");
+            l.add(e);
+            e = new Employe("patrik");
+            l.add(e);
+
+            //ajout de la liste d'employe dans le data
+            mv.addItem("listeAllEmp", l);
+            
+            //mettre isIsJSON en true
+            mv.setIsJSON(true);
+
+            return mv;
+        }
+
+&nbsp;
 # donnée vue vers model :
 ## 1. Utilisant les attributs de votre model
 >NB: <strong>les "name" de vos données</strong> (exemple : formulaire) doivent <strong>TOUJOURS CORRESPONDRE AUX NOMS DES ATTRIBUTS de votre model</strong>
