@@ -16,5 +16,6 @@
         <h3>Ok les gars GG!</h3>
         <h6>Nom : <%= e.getNom() %></h6>
         <h6>age : <%= e.getAge() %></h6>
+        <div><a href="logout.do">deconnexion</a></div>
     </body>
 </html>

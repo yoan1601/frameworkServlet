@@ -13,5 +13,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
         <div><a href="emp_findAll.do">liste des employes</a></div>
         <div><a href="emp_save.jsp">enregistrer un employe</a></div>
         <div><a href="client_save.jsp">enregistrer un client</a></div>
+        <div><a href="logout.do">deconnexion</a></div>
     </body>
 </html>

@@ -5,6 +5,7 @@ import etu1793.framework.Mapping;
 import etu1793.framework.annotationDao.RestAPI;
 import etu1793.framework.annotationDao.Session;
 import etu1793.framework.annotationDao.auth;
+import etu1793.framework.annotationDao.Login;
 import etu1793.framework.modelView.ModelView;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -38,6 +39,35 @@ import com.google.gson.GsonBuilder;
 public class Utilitaire {
 
     @SuppressWarnings("rawtypes")
+
+    public static void removeSession(HttpSession session, ModelView mv) throws Exception {
+        if (session != null) {
+            for (int i = 0; i < mv.getRemoveSession().size(); i++) {
+                String toRemove = mv.getRemoveSession().get(i);
+                if (session.getAttribute(toRemove) != null) {
+                    session.removeAttribute(toRemove);
+                }
+            }
+        }
+    }
+
+    public static void showSessionVar(HttpSession session) throws Exception {
+        System.out.println("Variables in session right now : ");
+        if (session != null) {
+            // Récupérer l'énumérateur des noms d'attributs de session
+            Enumeration<String> attributeNames = session.getAttributeNames();
+
+            // Parcourir les noms d'attributs et afficher les valeurs correspondantes
+            while (attributeNames.hasMoreElements()) {
+                String attributeName = attributeNames.nextElement();
+                Object attributeValue = session.getAttribute(attributeName);
+
+                // Faites quelque chose avec l'attribut (attributeName, attributeValue)
+                // Par exemple, l'afficher dans la console
+                System.out.println(attributeName + " : " + attributeValue);
+            }
+        }
+    }
 
     public static boolean isRestAPIJSON(Method m) {
         RestAPI restAPI = (RestAPI) m.getAnnotation(RestAPI.class);
@@ -357,12 +387,23 @@ public class Utilitaire {
         if (methode == null)
             throw new Exception("aucune methode ne correspond à " + methodName);
 
+        System.out.println("methode " + methodName);
+
         // authentification
-        verifIfNecessaryAuth(methode, request, refIsConnected, refRole, sessionState);
+        HttpSession session = request.getSession(false);
+        // boolean isNew = session.isNew();
+        // System.out.println("session.isNew " + isNew);
+        // if (isNew == false) {
+        Login loginAnnot = (Login) methode.getAnnotation(Login.class);
+        if(loginAnnot == null) {
+            verifIfNecessaryAuth(methode, request, refIsConnected, refRole, sessionState);
+        }
+        // }
 
         Object o = getObjetAttributSetted(clazz, request, singletons);
 
-        processUserSession(methode, o, request.getSession());
+        // sprint 12
+        processUserSession(methode, o, session);
 
         ModelView mv = null;
         Object toRestAPI = new Object();

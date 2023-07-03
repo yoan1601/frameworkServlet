@@ -23,5 +23,6 @@
             <%    }
             %>
         </ul>
+        <div><a href="logout.do">deconnexion</a></div>
     </body>
 </html>

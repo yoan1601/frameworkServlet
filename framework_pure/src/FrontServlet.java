@@ -64,11 +64,17 @@ public class FrontServlet extends HttpServlet {
 
                 if (mappingUrls.containsKey(urlPattern) == true) {
 
+                    // session
+                    HttpSession session = request.getSession(); //ne pas creer de nouvelle session
+
                     Object methodeReturn = Utilitaire.getObjectReturn(mappingUrls.get(urlPattern), request, singletons,
                             refIsConnected, refRole, sessionState);
 
                     if (methodeReturn instanceof ModelView) {
                         ModelView mv = (ModelView) methodeReturn;
+
+                        //SPRINT 15 - 2 remove session
+                        Utilitaire.removeSession(session, mv);
 
                         System.out.println("mv.getIsJSON() " + mv.getIsJSON());
                         // JSON
@@ -97,15 +103,27 @@ public class FrontServlet extends HttpServlet {
                                 }
                             }
 
-                            // session
                             if (mv.getSession().containsKey(refIsConnected) && mv.getSession().containsKey(refRole)) {
                                 // matoa tafiditra ato de methode authentify izy zay
-                                HttpSession session = request.getSession();
+                                session = request.getSession(true); //creer une nouvelle session
                                 Utilitaire.setSession(mv, session);
                                 sessionState = 1;
                                 System.out.println("authentification succes 2.0");
                                 System.out.println("session isConnected " + session.getAttribute(refIsConnected));
                                 System.out.println("session role " + session.getAttribute(refRole));
+                                System.out.println("============================================");
+                                //afficher les variables de session
+                                Utilitaire.showSessionVar(session);
+                            }
+
+                            //SPRINT 15 - 1 
+                            if(mv.getInvalidateSession() == true) {
+                                session.invalidate();
+                                System.out.println("invalidation de la session OK");
+                                session = request.getSession(true);
+                                System.out.println("creation de la nouvelle session OK");
+                                System.out.println("redirection ... vers "+mv.getView());
+                                response.sendRedirect(mv.getView());
                             }
 
                             RequestDispatcher dispat = request.getRequestDispatcher(mv.getView());
