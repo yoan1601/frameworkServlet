@@ -1,7 +1,6 @@
 package deconnect;
 
 import etu1793.framework.annotationDao.ParamAnnotation;
-import etu1793.framework.annotationDao.Scope;
 import etu1793.framework.annotationDao.UrlAnnotation;
 import etu1793.framework.modelView.ModelView;
 

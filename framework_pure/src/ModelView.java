@@ -11,6 +11,16 @@ public class ModelView {
     boolean invalidateSession = false;
     ArrayList<String> removeSession = new ArrayList<>();
 
+    public void removeSessionVar(String[] toRemoves) {
+        for (String string : toRemoves) {
+            this.getRemoveSession().add(string);
+        }   
+    }
+    
+    public void removeSessionVar(String toRemove) {
+        this.getRemoveSession().add(toRemove);
+    }
+
     public ArrayList<String> getRemoveSession() {
         return removeSession;
     }

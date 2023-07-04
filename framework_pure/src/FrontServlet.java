@@ -75,8 +75,9 @@ public class FrontServlet extends HttpServlet {
 
                         //SPRINT 15 - 2 remove session
                         Utilitaire.removeSession(session, mv);
+                        //afficher les variables de session
+                        Utilitaire.showSessionVar(session);
 
-                        System.out.println("mv.getIsJSON() " + mv.getIsJSON());
                         // JSON
                         if (mv.getIsJSON() == true) {
 
@@ -112,8 +113,6 @@ public class FrontServlet extends HttpServlet {
                                 System.out.println("session isConnected " + session.getAttribute(refIsConnected));
                                 System.out.println("session role " + session.getAttribute(refRole));
                                 System.out.println("============================================");
-                                //afficher les variables de session
-                                Utilitaire.showSessionVar(session);
                             }
 
                             //SPRINT 15 - 1 

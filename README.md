@@ -86,14 +86,17 @@ Si vous voulez ajouter des privilèges sur vos fonctions, procedez comme suit :
         </web-app>
 
 - Creez une **fonction d'authentification** qui prend en argument le login ,le mot de passe etc, qui serviront à connecter l'utilisateur et à lui affecter un role et de plus à configurer la session, dans le cas où l'authentification a échoué, vous pouvez faire une redirection dans la partie else { ... }
+> **IMPORTANT** : annotez votre methode d'authentification par **@Login**  
 - exemple
 
         import etu1793.framework.annotationDao.auth;
         import etu1793.framework.annotationDao.UrlAnnotation;
         import etu1793.framework.annotationDao.ParamAnnotation;
         import etu1793.framework.modelView.ModelView;
+        import etu1793.framework.annotationDao.Login;
 
         @UrlAnnotation(urlPattern = "auth.do")
+        @Login
         public ModelView authentify(@ParamAnnotation(description = "login") String login,
             @ParamAnnotation(description = "pwd") String pwd) {
             ModelView mv = new ModelView();
@@ -183,6 +186,53 @@ Vous pouvez recuperer les données de la session actuelle en suivant ces étapes
 
             ---
 
+        }
+
+&nbsp;
+## SUPPRIMER UNE OU PLUSIEURS SESSIONS
+
+- Dans votre methode vous pouvez supprimer une ou plusieurs sessions en mettant la variable de session dans l'argument de **ModelView.removeSessionVar(*String votre variable de session*)**
+
+- exemples :
+        
+        @UrlAnnotation(urlPattern = "client_suppress.do")
+        public ModelView supprSession() {
+            
+            ModelView mv = new ModelView();
+            mv.setView("resultSuppress.jsp");
+            mv.addItem("client", this);
+            
+            //les variables a supprimer de la session
+            String [] toSupSession = {"toSuppress", "deletMe"};
+            //suppression des variables
+            mv.removeSessionVar(toSupSession);
+
+            return mv;
+         }
+
+&nbsp;
+## DECONNEXION
+
+- Creez une methode de deconnexion et utiliser la methode **ModelView.setInvalidateSession(true)** votre vous deconnecter
+
+- exemple:
+
+        import etu1793.framework.annotationDao.ParamAnnotation;
+        import etu1793.framework.annotationDao.UrlAnnotation;
+        import etu1793.framework.modelView.ModelView;
+
+        public class Logout {
+            @UrlAnnotation(urlPattern = "logout.do")
+            public ModelView logout() {
+                ModelView mv = new ModelView();
+
+                mv.setInvalidateSession(true);
+
+                //definir la page de redirection apres la deconnexion
+                mv.setView("index.jsp");
+
+                return mv;
+            }
         }
 
 &nbsp;
