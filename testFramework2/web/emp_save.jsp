@@ -14,5 +14,6 @@
             <input type="number" name="age" id="age" placeholder="age" required>
             <input type="submit" value="save">
         </form>
+        <div><a href="logout.do">deconnexion</a></div>
     </body>
 </html>

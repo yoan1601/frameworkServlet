@@ -1,5 +1,6 @@
 package etu1793.framework.modelView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ModelView {
@@ -7,6 +8,34 @@ public class ModelView {
     HashMap<String, Object> data = new HashMap<String, Object>();
     HashMap<String, Object> session = new HashMap<String, Object>();
     boolean isJSON = false;
+    boolean invalidateSession = false;
+    ArrayList<String> removeSession = new ArrayList<>();
+
+    public void removeSessionVar(String[] toRemoves) {
+        for (String string : toRemoves) {
+            this.getRemoveSession().add(string);
+        }   
+    }
+    
+    public void removeSessionVar(String toRemove) {
+        this.getRemoveSession().add(toRemove);
+    }
+
+    public ArrayList<String> getRemoveSession() {
+        return removeSession;
+    }
+
+    public void setRemoveSession(ArrayList<String> removeSession) {
+        this.removeSession = removeSession;
+    }
+
+    public boolean getInvalidateSession() {
+        return invalidateSession;
+    }
+
+    public void setInvalidateSession(boolean invalidateSession) {
+        this.invalidateSession = invalidateSession;
+    }
 
     public HashMap<String, Object> getSession() {
         return this.session;

@@ -21,6 +21,17 @@ public class Client {
     private int nbAppels = 0;
     HashMap<String, Object> session;
 
+    @UrlAnnotation(urlPattern = "client_suppress.do")
+    public ModelView supprSession() {
+        ModelView mv = new ModelView();
+        mv.setView("resultSuppress.jsp");
+        mv.addItem("client", this);
+        String [] toSupSession = {"toSuppress", "deletMe"};
+        mv.addItem("toSuppres", toSupSession);
+        mv.removeSessionVar(toSupSession);
+        return mv;
+    }
+
     @RestAPI
     @UrlAnnotation(urlPattern = "client_findAll.do")
     public Client[] findAll() {

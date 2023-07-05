@@ -22,5 +22,6 @@
         <h6>Nom : <%= e.getNom() %></h6>
         <h6>age : <%= e.getAge() %></h6>
         <h6>date : <%= date %></h6>
+        <div><a href="logout.do">deconnexion</a></div>
     </body>
 </html>

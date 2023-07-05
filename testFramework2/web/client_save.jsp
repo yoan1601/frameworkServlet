@@ -16,5 +16,6 @@
             <p><input type="file" name="badge" id="badge" placeholder="badge" required></p>
             <p><input type="submit" value="save"></p>
         </form>
+        <div><a href="logout.do">deconnexion</a></div>
     </body>
 </html>

@@ -2,7 +2,7 @@
 <%@page import="objets.*, java.util.ArrayList" %>
 
 <%
-    ArrayList <Employe> le = (ArrayList <Employe>) request.getAttribute("listeAllEmp");
+    String[] deleted =(String []) request.getAttribute("toSuppres");
 %>
 
 <!DOCTYPE html>
@@ -13,16 +13,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div>Liste des employes</div>
+        <div>Session deleted</div>
         <ul>
-            <%
-                for(int i = 0; i < le.size(); i++) {
-                    Employe e = le.get(i);
-            %>
-                <p><a href='emp_find_by_id.do?id=<%= i %>&salut="bienvenue"&date="2024-06-12"'><%= e.getNom() %></a></p>
-            <%    }
-            %>
+            <% for(String del : deleted) { %>
+                <li>
+                    <%= del %>
+                </li>
+                <% } %>
         </ul>
+        <div><a href="accueil.jsp">retour</a></div>
         <div><a href="logout.do">deconnexion</a></div>
     </body>
 </html>
