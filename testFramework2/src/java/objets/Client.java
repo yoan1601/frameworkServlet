@@ -21,6 +21,19 @@ public class Client {
     private int nbAppels = 0;
     HashMap<String, Object> session;
 
+    @UrlAnnotation(urlPattern = "client_findAll_test.do")
+    public Client[] find() {
+        Client c0 = new Client();
+        c0.setNom("Jean");
+        Client c1 = new Client();
+        c1.setNom("joseph");
+        Client c2 = new Client();
+        c2.setNom("Jasper");
+
+        Client[] lc = { c0, c1, c2 };
+        return lc;
+    }
+
     @UrlAnnotation(urlPattern = "client_suppress.do")
     public ModelView supprSession() {
         ModelView mv = new ModelView();
