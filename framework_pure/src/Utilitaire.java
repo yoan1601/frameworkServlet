@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -369,7 +370,7 @@ public class Utilitaire {
         return rep;
     }
 
-    public static Object getObjectReturn(Mapping mapping, HttpServletRequest request,
+    public static ArrayList<Object> getObjectReturn(Mapping mapping, HttpServletRequest request,
             HashMap<String, Object> singletons, String refIsConnected, String refRole, int sessionState)
             throws Exception {
         System.out.println("============================");
@@ -388,6 +389,9 @@ public class Utilitaire {
             throw new Exception("aucune methode ne correspond à " + methodName);
 
         System.out.println("methode " + methodName);
+
+        ArrayList<Object> retour = new ArrayList<>();
+        retour.add(methode);
 
         // authentification
         HttpSession session = request.getSession(false);
@@ -411,12 +415,29 @@ public class Utilitaire {
         if (isRestAPIJSON(methode) == false) {
             if (methode.getParameters().length > 0) {
                 Object[] arguments = getListeObjetsParametres(methode, request);
-                mv = (ModelView) methode.invoke(o, arguments);
+                Object objet = methode.invoke(o, arguments);
+                if(objet instanceof ModelView) {
+                    mv = (ModelView) objet;
+                    System.out.println("methode " + methodName);
+                    retour.add(mv);
+                    return retour;
+                }
+                else {
+                    retour.add(objet);
+                    return retour;
+                }
             } else {
-                mv = (ModelView) methode.invoke(o);
+                Object objet = methode.invoke(o);
+                if(objet instanceof ModelView) {
+                    mv = (ModelView) objet;
+                    retour.add(mv);
+                    return retour;
+                }
+                else {
+                    retour.add(objet);
+                    return retour;
+                }
             }
-            System.out.println("methode " + methodName);
-            return mv;
         } else {
             if (methode.getParameters().length > 0) {
                 Object[] arguments = getListeObjetsParametres(methode, request);
@@ -425,7 +446,9 @@ public class Utilitaire {
                 toRestAPI = methode.invoke(o);
             }
             System.out.println("methode utilisant REST API " + methodName);
-            return toRestAPI;
+            
+            retour.add(toRestAPI);
+            return retour;
         }
 
     }

@@ -11,15 +11,23 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.print.DocFlavor.READER;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.http.HttpSession;
+
+import java.lang.reflect.Method;
+
+import etu1793.framework.annotationDao.RestAPI;
 
 @MultipartConfig
 public class FrontServlet extends HttpServlet {
@@ -67,8 +75,13 @@ public class FrontServlet extends HttpServlet {
                     // session
                     HttpSession session = request.getSession(); //ne pas creer de nouvelle session
 
-                    Object methodeReturn = Utilitaire.getObjectReturn(mappingUrls.get(urlPattern), request, singletons,
+                    ArrayList <Object> methodeObject = Utilitaire.getObjectReturn(mappingUrls.get(urlPattern), request, singletons,
                             refIsConnected, refRole, sessionState);
+
+                    Object methodeReturn = methodeObject.get(1);
+                    Method method = (Method) methodeObject.get(0);
+
+                    RestAPI restAPI = (RestAPI) method.getAnnotation(RestAPI.class);
 
                     if (methodeReturn instanceof ModelView) {
                         ModelView mv = (ModelView) methodeReturn;
@@ -130,7 +143,7 @@ public class FrontServlet extends HttpServlet {
                         }
                     }
 
-                    else { // JSON par annotation
+                    else if(restAPI != null) { // JSON par annotation
                         System.out.println("JSON par annotation");
                         String json = Utilitaire.toJson(methodeReturn);
 
@@ -143,6 +156,10 @@ public class FrontServlet extends HttpServlet {
                         // Écrire la réponse JSON
                         out.print(json);
                         out.flush();
+                    }
+
+                    else {
+                        throw new Exception("la methode ne retourne pas de modelView et n'est pas annoted par rest API");
                     }
 
                 } else {
